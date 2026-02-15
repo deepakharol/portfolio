@@ -139,7 +139,7 @@
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: -38px;
+    left: -35px;
     top: 0;
     width: 12px;
     height: 12px;
@@ -768,7 +768,7 @@
     }
 
     .timeline-item::before {
-        left: -18px;
+        left: -15px;
     }
 
     .education-grid,
@@ -807,7 +807,7 @@
     }
 
     .timeline-item::before {
-        left: -11px;
+        left: -9px;
         width: 10px;
         height: 10px;
         border-width: 2px;
