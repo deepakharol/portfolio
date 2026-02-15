@@ -807,7 +807,7 @@
     }
 
     .timeline-item::before {
-        left: -13px;
+        left: -11px;
         width: 10px;
         height: 10px;
         border-width: 2px;
