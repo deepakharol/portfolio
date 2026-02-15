@@ -139,7 +139,7 @@
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: -35px;
+    left: -38px;
     top: 0;
     width: 12px;
     height: 12px;
@@ -361,7 +361,7 @@
     font-size: 1.3rem;
 }
 
-.project-card > p {
+.project-card>p {
     padding: 1.5rem;
     color: var(--text-color);
     line-height: 1.6;
@@ -704,8 +704,13 @@
 
 /* ===== Animations ===== */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slideIn {
@@ -713,6 +718,7 @@
         transform: translateY(-50px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -761,6 +767,10 @@
         padding-left: 30px;
     }
 
+    .timeline-item::before {
+        left: -18px;
+    }
+
     .education-grid,
     .skills-grid,
     .projects-grid,
@@ -790,5 +800,58 @@
 
     .container {
         padding: 0 1rem;
+    }
+
+    .timeline {
+        padding-left: 25px;
+    }
+
+    .timeline-item::before {
+        left: -13px;
+        width: 10px;
+        height: 10px;
+        border-width: 2px;
+        box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ===== Additional Mobile Optimizations ===== */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 480px) {
+    .timeline {
+        padding-left: 25px;
+    }
+
+    .timeline-item::before {
+        left: -31px;
+        width: 10px;
+        height: 10px;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
     }
 }

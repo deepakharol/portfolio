@@ -178,24 +178,8 @@ function initContactForm() {
     const contactForm = document.getElementById('contactForm');
     if (!contactForm) return;
 
-    contactForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Simulate form submission
-        const submitBtn = contactForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-
-        // Simulate network delay
-        setTimeout(() => {
-            showNotification('Message sent successfully! (Demo mode)', 'success');
-            contactForm.reset();
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        }, 1500);
-    });
+    // Using FormSubmit.co for backend-less submission
+    // Default HTML submission is enabled
 }
 
 // Project modals
