@@ -3,7 +3,7 @@ const CONFIG = {
     // Static configuration
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize all components
     initPreloader();
     initNavigation();
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initProjectModals();
     initTypingEffect();
     initScrollAnimations();
-    
+
     // Static projects are loaded via modals on demand
 });
 
@@ -37,7 +37,7 @@ function initNavigation() {
     const navToggle = document.getElementById('navToggle');
     const navMenu = document.getElementById('navMenu');
     const navLinks = document.querySelectorAll('.nav-link');
-    
+
     // Navbar scroll effect
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
@@ -45,11 +45,11 @@ function initNavigation() {
         } else {
             navbar.classList.remove('scrolled');
         }
-        
+
         // Update active nav link
         updateActiveNavLink();
     });
-    
+
     // Mobile menu toggle
     if (navToggle) {
         navToggle.addEventListener('click', () => {
@@ -57,7 +57,7 @@ function initNavigation() {
             navToggle.classList.toggle('active');
         });
     }
-    
+
     // Close mobile menu on link click
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
@@ -71,7 +71,7 @@ function initNavigation() {
 function updateActiveNavLink() {
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-link');
-    
+
     let current = '';
     sections.forEach(section => {
         const sectionTop = section.offsetTop - 100;
@@ -80,7 +80,7 @@ function updateActiveNavLink() {
             current = section.getAttribute('id');
         }
     });
-    
+
     navLinks.forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('href') === `#${current}`) {
@@ -110,22 +110,22 @@ function initSmoothScrolling() {
 function initTypingEffect() {
     const typingText = document.querySelector('.typing-text');
     if (!typingText) return;
-    
+
     const texts = [
         'Senior Software Engineer',
         'Backend Developer',
         'Problem Solver',
         'Team Leader'
     ];
-    
+
     let textIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
     let typingSpeed = 100;
-    
+
     function type() {
         const currentText = texts[textIndex];
-        
+
         if (isDeleting) {
             typingText.textContent = currentText.substring(0, charIndex - 1);
             charIndex--;
@@ -135,7 +135,7 @@ function initTypingEffect() {
             charIndex++;
             typingSpeed = 100;
         }
-        
+
         if (!isDeleting && charIndex === currentText.length) {
             typingSpeed = 2000;
             isDeleting = true;
@@ -144,10 +144,10 @@ function initTypingEffect() {
             textIndex = (textIndex + 1) % texts.length;
             typingSpeed = 500;
         }
-        
+
         setTimeout(type, typingSpeed);
     }
-    
+
     type();
 }
 
@@ -157,7 +157,7 @@ function initScrollAnimations() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -166,7 +166,7 @@ function initScrollAnimations() {
             }
         });
     }, observerOptions);
-    
+
     // Observe all elements with data-aos attribute
     document.querySelectorAll('[data-aos]').forEach(element => {
         observer.observe(element);
@@ -177,17 +177,17 @@ function initScrollAnimations() {
 function initContactForm() {
     const contactForm = document.getElementById('contactForm');
     if (!contactForm) return;
-    
+
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         // Simulate form submission
         const submitBtn = contactForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        
+
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        
+
         // Simulate network delay
         setTimeout(() => {
             showNotification('Message sent successfully! (Demo mode)', 'success');
@@ -200,26 +200,26 @@ function initContactForm() {
 
 // Project modals
 function initProjectModals() {
-    window.closeProjectModal = function() {
+    window.closeProjectModal = function () {
         const modal = document.getElementById('projectModal');
         if (modal) modal.style.display = 'none';
     };
-    
-    window.loadProjectDetails = function(projectId) {
+
+    window.loadProjectDetails = function (projectId) {
         const modal = document.getElementById('projectModal');
         const projectTitle = document.getElementById('projectTitle');
         const projectDetails = document.getElementById('projectDetails');
-        
+
         if (!modal || !projectTitle || !projectDetails) return;
-        
+
         modal.style.display = 'block';
-        
+
         // Load project details (static data)
         const projectData = getProjectData(projectId);
         projectTitle.textContent = projectData.title;
         projectDetails.innerHTML = projectData.content;
     };
-    
+
     // Close modal on outside click
     window.addEventListener('click', (e) => {
         const modals = document.querySelectorAll('.modal');
@@ -234,6 +234,124 @@ function initProjectModals() {
 // Get static project data
 function getProjectData(projectId) {
     const projects = {
+        'frequency-capping': {
+            title: 'Advanced Frequency Capping System',
+            content: `
+                <h3>Overview</h3>
+                <p>Developed a sophisticated rule-based frequency capping system to prevent user over-messaging at scale. This system handles label-level, channel-level, and cross-channel limits.</p>
+                
+                <h3>Key Features</h3>
+                <ul>
+                    <li>Complex rule evaluation engine</li>
+                    <li>Cross-channel message limiting</li>
+                    <li>Real-time enforcement at scale</li>
+                    <li>Granular control with label-level limits</li>
+                </ul>
+                
+                <h3>Impact</h3>
+                <p>Significantly improved user experience by preventing message fatigue and ensuring compliance with communication policies in high-throughput environments.</p>
+                
+                <h3>Technologies Used</h3>
+                <p>Java, Redis, Distributed Systems, Rule Engine</p>
+            `
+        },
+        'campaign-archival': {
+            title: 'Campaign Auto Archival Pipeline',
+            content: `
+                <h3>Overview</h3>
+                <p>Built an automated pipeline to offload inactive campaign targeting data from the primary MongoDB cluster to a dedicated archival datastore.</p>
+                
+                <h3>Key Features</h3>
+                <ul>
+                    <li>Automated data identification and migration</li>
+                    <li>Zero-downtime archival process</li>
+                    <li>Data integrity verification</li>
+                    <li>Performance optimization for primary cluster</li>
+                </ul>
+                
+                <h3>Impact</h3>
+                <p>Improved overall system performance and stability by reducing the load on the primary operational database.</p>
+                
+                <h3>Technologies Used</h3>
+                <p>Java, MongoDB, Data Pipelines, System Optimization</p>
+            `
+        },
+        'linked-content': {
+            title: 'Linked Content Personalization',
+            content: `
+                <h3>Overview</h3>
+                <p>Architected an external API-driven content personalization system for campaigns, enabling dynamic payload generation based on real-time data.</p>
+                
+                <h3>Key Features</h3>
+                <ul>
+                    <li>External API integration for dynamic content</li>
+                    <li>Real-time payload generation</li>
+                    <li>Simplified client onboarding process</li>
+                    <li>High-performance data fetching</li>
+                </ul>
+                
+                <h3>Impact</h3>
+                <p>Significantly reduced client onboarding friction and enabled highly personalized campaign content served at runtime.</p>
+                
+                <h3>Technologies Used</h3>
+                <p>Java, REST APIs, Microservices, Real-time Processing</p>
+            `
+        },
+        'versioned-messaging': {
+            title: 'Versioned Messaging Support',
+            content: `
+                <h3>Overview</h3>
+                <p>Implemented robust multi-version support for campaign messages, allowing for safer updates and A/B testing capabilities.</p>
+                
+                <h3>Key Features</h3>
+                <ul>
+                    <li>Message version control</li>
+                    <li>Backward compatibility support</li>
+                    <li>Safe rollout mechanisms</li>
+                </ul>
+                
+                <h3>Technologies Used</h3>
+                <p>Java, System Design, Data Modeling</p>
+            `
+        },
+        'audience-integration': {
+            title: 'Facebook & Google Audience Integration',
+            content: `
+                <h3>Overview</h3>
+                <p>Integrated Facebook and Google Ads workflows directly into the CleverTap platform for seamless audience creation and ad set targeting.</p>
+                
+                <h3>Key Features</h3>
+                <ul>
+                    <li>Direct integration with Ad platforms APIs</li>
+                    <li>Automated audience syncing</li>
+                    <li>Profile attribute targeting (email, phone)</li>
+                    <li>Streamlined marketing workflow</li>
+                </ul>
+                
+                <h3>Technologies Used</h3>
+                <p>Java, Third-party APIs, OAuth, Batch Processing</p>
+            `
+        },
+        'push-analytics': {
+            title: 'Push Notification Analytics',
+            content: `
+                <h3>Overview</h3>
+                <p>Built comprehensive analytics pipelines and dashboards to compute and visualize push notification render rates (Impressions vs Sent).</p>
+                
+                <h3>Key Features</h3>
+                <ul>
+                    <li>Data pipeline for tracking delivery stats</li>
+                    <li>Real-time dashboard visualization</li>
+                    <li>Calculation of complex metrics</li>
+                </ul>
+                
+                <h3>Impact</h3>
+                <p>Greatly improved visibility into campaign performance, helping clients optimize their messaging strategies.</p>
+                
+                <h3>Technologies Used</h3>
+                <p>Java, Data Analytics, Visualization Tools</p>
+            `
+        },
         'campaign-api': {
             title: 'Campaign API System',
             content: `
@@ -301,7 +419,7 @@ function getProjectData(projectId) {
             `
         }
     };
-    
+
     return projects[projectId] || { title: 'Project Details', content: '<p>Project information not available.</p>' };
 }
 
@@ -322,9 +440,9 @@ function showNotification(message, type = 'info') {
         z-index: 9999;
         animation: slideIn 0.3s ease;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => {

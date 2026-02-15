@@ -340,21 +340,20 @@
                     </div>
                 </div>
 
-                <!-- Campaign API Project -->
+                <!-- Advanced Frequency Capping -->
                 <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="project-header">
-                        <i class="fas fa-rocket"></i>
-                        <h3>Campaign API System</h3>
+                        <i class="fas fa-filter"></i>
+                        <h3>Advanced Frequency Capping</h3>
                     </div>
-                    <p>RESTful API for programmatic campaign creation handling push notifications, emails, and SMS. Powers 40% of all campaigns at CleverTap.</p>
+                    <p>Rule-based frequency capping system with multi-level limits to prevent user over-messaging at scale.</p>
                     <div class="project-tech">
                         <span>Java</span>
-                        <span>Spring Boot</span>
                         <span>Redis</span>
-                        <span>MongoDB</span>
+                        <span>Distributed Systems</span>
                     </div>
                     <div class="project-links">
-                        <button class="btn-details" onclick="loadProjectDetails('campaign-api')">
+                        <button class="btn-details" onclick="loadProjectDetails('frequency-capping')">
                             <i class="fas fa-info-circle"></i> View Details
                         </button>
                     </div>
@@ -371,7 +370,6 @@
                         <span>Java</span>
                         <span>Redis</span>
                         <span>Microservices</span>
-                        <span>REST API</span>
                     </div>
                     <div class="project-links">
                         <button class="btn-details" onclick="loadProjectDetails('unified-inbox')">
@@ -380,13 +378,106 @@
                     </div>
                 </div>
 
-                <!-- More Projects from Backend -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="300">
+                <!-- Campaign Auto Archival -->
+                <div class="project-card" data-aos="fade-up">
+                    <div class="project-header">
+                        <i class="fas fa-archive"></i>
+                        <h3>Campaign Auto Archival</h3>
+                    </div>
+                    <p>Automated pipeline to offload inactive campaign data from primary clusters, improving system stability.</p>
+                    <div class="project-tech">
+                        <span>Java</span>
+                        <span>MongoDB</span>
+                        <span>Data Pipelines</span>
+                    </div>
+                    <div class="project-links">
+                        <button class="btn-details" onclick="loadProjectDetails('campaign-archival')">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Linked Content Personalization -->
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="project-header">
+                        <i class="fas fa-link"></i>
+                        <h3>Linked Content Personalization</h3>
+                    </div>
+                    <p>API-driven content personalization system enabling dynamic payload generation and reducing onboarding friction.</p>
+                    <div class="project-tech">
+                        <span>Java</span>
+                        <span>REST API</span>
+                        <span>Microservices</span>
+                    </div>
+                    <div class="project-links">
+                        <button class="btn-details" onclick="loadProjectDetails('linked-content')">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Campaign API Project -->
+                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="project-header">
+                        <i class="fas fa-rocket"></i>
+                        <h3>Campaign API System</h3>
+                    </div>
+                    <p>RESTful API for programmatic campaign creation handling push notifications, emails, and SMS. Powers 40% of all campaigns.</p>
+                    <div class="project-tech">
+                        <span>Java</span>
+                        <span>Spring Boot</span>
+                        <span>Redis</span>
+                    </div>
+                    <div class="project-links">
+                        <button class="btn-details" onclick="loadProjectDetails('campaign-api')">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Versioned Messaging -->
+                <div class="project-card" data-aos="fade-up">
+                    <div class="project-header">
+                        <i class="fas fa-code-branch"></i>
+                        <h3>Versioned Messaging</h3>
+                    </div>
+                    <p>Implemented robust multi-version support for campaign messages to enable safer updates.</p>
+                    <div class="project-tech">
+                        <span>Java</span>
+                        <span>System Design</span>
+                    </div>
+                    <div class="project-links">
+                        <button class="btn-details" onclick="loadProjectDetails('versioned-messaging')">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Audience Integration -->
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="project-header">
+                        <i class="fab fa-facebook"></i>
+                        <h3>Ads Integration</h3>
+                    </div>
+                    <p>Integrated Facebook & Google Ads workflows for seamless audience creation and targeting.</p>
+                    <div class="project-tech">
+                        <span>Java</span>
+                        <span>Third-party APIs</span>
+                    </div>
+                    <div class="project-links">
+                        <button class="btn-details" onclick="loadProjectDetails('audience-integration')">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PII Encryption -->
+                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="project-header">
                         <i class="fas fa-shield-alt"></i>
                         <h3>PII Data Encryption</h3>
                     </div>
-                    <p>End-to-end encryption system for user data including properties, email, and phone numbers with secure personalization.</p>
+                    <p>End-to-end encryption system for user data including properties, email, and phone numbers.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>Cryptography</span>
@@ -394,6 +485,24 @@
                     </div>
                     <div class="project-links">
                         <button class="btn-details" onclick="loadProjectDetails('encryption')">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Push Analytics -->
+                <div class="project-card" data-aos="fade-up">
+                    <div class="project-header">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Push Analytics</h3>
+                    </div>
+                    <p>Analytics pipelines and dashboards to compute push notification render rates and performance.</p>
+                    <div class="project-tech">
+                        <span>Java</span>
+                        <span>Analytics</span>
+                    </div>
+                    <div class="project-links">
+                        <button class="btn-details" onclick="loadProjectDetails('push-analytics')">
                             <i class="fas fa-info-circle"></i> View Details
                         </button>
                     </div>
