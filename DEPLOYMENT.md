@@ -18,13 +18,13 @@ This guide explains how to deploy your static portfolio to Cloudflare Pages and 
 
 ## Step 2: Configure Build Settings
 
-Since your site is now static (HTML/CSS/JS only), no build command is needed.
+Since your site is now static (HTML/CSS/JS only) and in the **root** folder:
 
 -   **Project Name**: `portfolio` (or your preferred name)
 -   **Production branch**: `main`
 -   **Framework preset**: `None`
--   **Build command**: Leave empty
--   **Build output directory**: `/` (or leave empty if root is the directory)
+-   **Build command**: `exit 0` (This prevents it from looking for a build script)
+-   **Build output directory**: `.` (A single dot, meaning the root folder)
 -   **Environment variables**: None needed for static site.
 
 Click **Save and Deploy**.
