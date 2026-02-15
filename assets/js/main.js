@@ -1,6 +1,6 @@
 // Main JavaScript File
 const CONFIG = {
-    API_BASE_URL: 'http://localhost:8080/api'
+    // Static configuration
 };
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initTypingEffect();
     initScrollAnimations();
     
-    // Load dynamic content from backend
-    loadProjectsFromAPI();
+    // Static projects are loaded via modals on demand
 });
 
 // Preloader
@@ -182,31 +181,20 @@ function initContactForm() {
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const formData = {
-            name: document.getElementById('name').value,
-            email: document.getElementById('email').value,
-            message: document.getElementById('message').value
-        };
+        // Simulate form submission
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
         
-        try {
-            const response = await fetch(`${CONFIG.API_BASE_URL}/contact`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            
-            if (response.ok) {
-                showNotification('Message sent successfully!', 'success');
-                contactForm.reset();
-            } else {
-                showNotification('Failed to send message. Please try again.', 'error');
-            }
-        } catch (error) {
-            console.error('Error sending message:', error);
-            showNotification('Failed to send message. Please try again.', 'error');
-        }
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        
+        // Simulate network delay
+        setTimeout(() => {
+            showNotification('Message sent successfully! (Demo mode)', 'success');
+            contactForm.reset();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }, 1500);
     });
 }
 
@@ -217,7 +205,7 @@ function initProjectModals() {
         if (modal) modal.style.display = 'none';
     };
     
-    window.loadProjectDetails = async function(projectId) {
+    window.loadProjectDetails = function(projectId) {
         const modal = document.getElementById('projectModal');
         const projectTitle = document.getElementById('projectTitle');
         const projectDetails = document.getElementById('projectDetails');
@@ -226,7 +214,7 @@ function initProjectModals() {
         
         modal.style.display = 'block';
         
-        // Load project details (can be from API or static data)
+        // Load project details (static data)
         const projectData = getProjectData(projectId);
         projectTitle.textContent = projectData.title;
         projectDetails.innerHTML = projectData.content;
@@ -317,21 +305,6 @@ function getProjectData(projectId) {
     return projects[projectId] || { title: 'Project Details', content: '<p>Project information not available.</p>' };
 }
 
-// Load projects from API
-async function loadProjectsFromAPI() {
-    try {
-        const response = await fetch(`${CONFIG.API_BASE_URL}/projects`);
-        if (response.ok) {
-            const projects = await response.json();
-            console.log('Projects loaded from API:', projects);
-            // Update UI with dynamic projects if needed
-        }
-    } catch (error) {
-        console.log('Using static project data');
-        // API not available, using static data
-    }
-}
-
 // Show notification
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
@@ -377,15 +350,20 @@ style.textContent = `
     }
     [data-aos].animate {
         opacity: 1;
+        transition-delay: 0s;
     }
     [data-aos="fade-up"].animate {
-        animation: fadeInUp 0.6s ease;
+        animation: fadeInUp 0.6s ease forwards;
     }
     [data-aos="fade-right"].animate {
-        animation: fadeInRight 0.6s ease;
+        animation: fadeInRight 0.6s ease forwards;
     }
     [data-aos="fade-left"].animate {
-        animation: fadeInLeft 0.6s ease;
+        animation: fadeInLeft 0.6s ease forwards;
+    }
+    @keyframes fadeInUp {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
     @keyframes fadeInRight {
         from { transform: translateX(-30px); opacity: 0; }
