@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deepak's Planner</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23667eea'/><stop offset='100%25' stop-color='%23764ba2'/></linearGradient></defs><rect width='100' height='100' rx='20' fill='url(%23g)'/><text y='.9em' font-size='55' font-family='Arial' font-weight='bold' fill='white' x='50%25' text-anchor='middle' dominant-baseline='middle' dy='.1em'>✓</text></svg>">
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="logo">DK</div>
+    <h2>Task Planner</h2>
+    <p>Enter your PIN to access your workspace</p>
+    <input type="password" class="pin-input" id="pin-input" placeholder="••••" maxlength="20" autocomplete="current-password">
+    <button class="btn-login" id="btn-login">
+      <i class="fas fa-unlock-alt"></i> Unlock
+    </button>
+    <div class="login-error" id="login-error">Incorrect PIN. Try again.</div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <header class="app-header">
+    <span class="logo">Task Planner</span>
+    <div class="header-actions">
+      <button class="btn-new-task" id="btn-new-task">
+        <i class="fas fa-plus"></i> New Task
+      </button>
+      <button class="btn-icon" title="Logout" id="btn-logout">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- Task List -->
+    <div class="task-list-panel">
+      <div class="filter-bar">
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="today">Today</button>
+          <button class="filter-tab" data-filter="overdue">Overdue</button>
+          <button class="filter-tab" data-filter="P1">P1</button>
+          <button class="filter-tab" data-filter="P2">P2</button>
+          <button class="filter-tab" data-filter="P3">P3</button>
+          <button class="filter-tab" data-filter="P4">P4</button>
+          <button class="filter-tab" data-filter="done">Done</button>
+        </div>
+      </div>
+      <div class="task-list-scroll" id="task-list"></div>
+    </div>
+
+    <!-- Task Detail -->
+    <div class="task-detail-panel" id="task-detail-panel">
+      <div class="detail-empty" id="detail-empty">
+        <i class="fas fa-clipboard-list"></i>
+        <p>Select a task to view details</p>
+      </div>
+      <div class="detail-content" id="detail-content" style="display:none;">
+        <!-- Title & Meta -->
+        <div class="detail-header">
+          <div class="detail-title-area">
+            <input type="text" class="detail-title" id="detail-title" placeholder="Task title">
+            <div class="detail-meta-row">
+              <select class="meta-select priority-select" id="detail-priority">
+                <option value="P1">🔴 P1 - Critical</option>
+                <option value="P2">🟠 P2 - High</option>
+                <option value="P3">🔵 P3 - Medium</option>
+                <option value="P4">⚪ P4 - Low</option>
+              </select>
+              <input type="date" class="meta-select" id="detail-due">
+              <select class="meta-select" id="detail-status">
+                <option value="pending">⏳ Pending</option>
+                <option value="in_progress">🔄 In Progress</option>
+                <option value="done">✅ Done</option>
+              </select>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn-detail-action danger" id="btn-delete-task">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="detail-section">
+          <h3><i class="fas fa-align-left"></i> Description</h3>
+          <textarea class="description-area" id="detail-description" placeholder="Add a description…" rows="3"></textarea>
+        </div>
+
+        <!-- Subtasks -->
+        <div class="detail-section">
+          <h3><i class="fas fa-list-check"></i> Subtasks</h3>
+          <div class="subtask-list" id="subtask-list"></div>
+          <div class="add-subtask-row">
+            <input type="text" class="add-subtask-input" id="add-subtask-input" placeholder="+ Add a bullet point…">
+          </div>
+        </div>
+
+        <!-- Attachments -->
+        <div class="detail-section">
+          <h3><i class="fas fa-paperclip"></i> Attachments</h3>
+          <div class="upload-zone" id="upload-zone">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <div>Drag & drop files here or <strong>click to browse</strong></div>
+            <div style="font-size:0.8rem;margin-top:0.3rem;">Max 50MB per file</div>
+          </div>
+          <input type="file" id="file-input" multiple>
+          <div class="upload-progress" id="upload-progress">
+            <i class="fas fa-spinner fa-spin"></i> Uploading…
+          </div>
+          <div class="attachment-grid" id="attachment-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Task Modal -->
+<div class="modal-overlay" id="create-modal">
+  <div class="modal-box">
+    <h2><i class="fas fa-plus-circle"></i> New Task</h2>
+    <div class="form-field">
+      <label>Title *</label>
+      <input type="text" class="form-input" id="new-title" placeholder="What needs to be done?" required>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Priority</label>
+        <select class="form-input" id="new-priority">
+          <option value="P1">🔴 P1 - Critical</option>
+          <option value="P2">🟠 P2 - High</option>
+          <option value="P3">🔵 P3 - Medium</option>
+          <option value="P4">⚪ P4 - Low</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Due Date</label>
+        <input type="date" class="form-input" id="new-due">
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Description</label>
+      <textarea class="form-input" id="new-description" rows="3" placeholder="Optional description…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="btn-cancel-create">Cancel</button>
+      <button class="btn-create" id="btn-confirm-create">
+        <i class="fas fa-check"></i> Create Task
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <span class="lightbox-close" id="lightbox-close">&times;</span>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
