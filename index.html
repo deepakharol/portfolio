@@ -7,6 +7,22 @@
     <title>Deepak Kharol - Senior Software Engineer | Portfolio</title>
     <meta name="description"
         content="Portfolio of Deepak Kharol, Senior Software Engineer at CleverTap with expertise in backend development, data security, and large-scale system optimization.">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23667eea'/><stop offset='100%25' stop-color='%23764ba2'/></linearGradient></defs><rect width='100' height='100' rx='20' fill='url(%23g)'/><text y='.9em' font-size='60' font-family='Arial' font-weight='bold' fill='white' x='50%25' text-anchor='middle' dominant-baseline='middle' dy='.1em'>DK</text></svg>">
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://deepakkharol.com/">
+    <meta property="og:title" content="Deepak Kharol - Senior Software Engineer">
+    <meta property="og:description" content="Senior Software Engineer at CleverTap with expertise in backend development, data security, and large-scale system optimization.">
+    <meta property="og:image" content="https://deepakkharol.com/assets/images/og-preview.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://deepakkharol.com/">
+    <meta property="twitter:title" content="Deepak Kharol - Senior Software Engineer">
+    <meta property="twitter:description" content="Senior Software Engineer at CleverTap with expertise in backend development, data security, and large-scale system optimization.">
+    <meta property="twitter:image" content="https://deepakkharol.com/assets/images/og-preview.png">
+
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/style-sections.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -38,6 +54,7 @@
                     <li class="nav-item"><a href="#education" class="nav-link">Education</a></li>
                     <li class="nav-item"><a href="#skills" class="nav-link">Skills</a></li>
                     <li class="nav-item"><a href="#projects" class="nav-link">Projects</a></li>
+                    <li class="nav-item"><a href="#awards" class="nav-link">Awards</a></li>
                     <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
                 </ul>
             </div>
@@ -609,6 +626,9 @@
                         <i class="fas fa-paper-plane"></i> Send Message
                     </button>
                 </form>
+                <div id="form-success" style="display:none;" class="form-success-msg">
+                    <i class="fas fa-check-circle"></i> Message sent! I'll get back to you soon.
+                </div>
             </div>
         </div>
     </section>
@@ -616,7 +636,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Deepak Kharol. All rights reserved.</p>
+            <p>&copy; <span id="footer-year"></span> Deepak Kharol. All rights reserved.</p>
             <div class="footer-links">
                 <a href="https://www.linkedin.com/in/deepakharol" target="_blank"><i class="fab fa-linkedin"></i></a>
                 <a href="https://github.com/deepakkharol" target="_blank"><i class="fab fa-github"></i></a>

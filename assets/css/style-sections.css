@@ -533,6 +533,26 @@
     align-self: center;
 }
 
+.form-success-msg {
+    margin-top: 2rem;
+    padding: 1.5rem 2rem;
+    background: #ecfdf5;
+    border: 2px solid #10b981;
+    border-radius: 12px;
+    color: #065f46;
+    font-size: 1.1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.form-success-msg i {
+    font-size: 1.5rem;
+    color: #10b981;
+}
+
 /* ===== Footer ===== */
 .footer {
     background: var(--dark-color);

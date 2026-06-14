@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', function () {
     initTypingEffect();
     initScrollAnimations();
 
-    // Static projects are loaded via modals on demand
+    // Dynamic footer year
+    const yearEl = document.getElementById('footer-year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
 });
 
 // Preloader
@@ -178,8 +180,27 @@ function initContactForm() {
     const contactForm = document.getElementById('contactForm');
     if (!contactForm) return;
 
-    // Using FormSubmit.co for backend-less submission
-    // Default HTML submission is enabled
+    contactForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const btn = contactForm.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        try {
+            const data = new FormData(contactForm);
+            await fetch(contactForm.action, {
+                method: 'POST',
+                body: data,
+                headers: { Accept: 'application/json' }
+            });
+            contactForm.style.display = 'none';
+            document.getElementById('form-success').style.display = 'block';
+        } catch {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+            showNotification('Failed to send message. Please try emailing directly.', 'error');
+        }
+    });
 }
 
 // Project modals
