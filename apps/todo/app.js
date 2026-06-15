@@ -11,9 +11,13 @@ let tables = [];
 // ===== Auth =====
 
 async function login() {
-  const pin = document.getElementById('pin-input').value;
+  const pin = document.getElementById('pin-input').value.trim();
+  if (!pin) return;
   const err = document.getElementById('login-error');
+  const btn = document.getElementById('btn-login');
   err.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Unlocking…';
   try {
     const res = await fetch(`${API}/auth`, {
       method: 'POST',
@@ -32,10 +36,15 @@ async function login() {
     err.style.display = 'block';
     document.getElementById('pin-input').value = '';
     document.getElementById('pin-input').focus();
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-unlock-alt"></i> Unlock';
   }
 }
 
 async function loginAsGuest() {
+  const btn = document.getElementById('btn-try-it');
+  btn.disabled = true;
+  btn.querySelector('strong').textContent = 'Starting demo…';
   try {
     const res = await fetch(`${API}/guest-auth`, { method: 'POST' });
     const data = await res.json();
@@ -48,6 +57,8 @@ async function loginAsGuest() {
   } catch (e) {
     document.getElementById('login-error').textContent = 'Failed to start demo session.';
     document.getElementById('login-error').style.display = 'block';
+    btn.disabled = false;
+    btn.querySelector('strong').textContent = 'Try the Demo';
   }
 }
 
@@ -709,6 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auth
   document.getElementById('btn-login').addEventListener('click', login);
   document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  document.getElementById('pin-input').addEventListener('keyup', e => { if (e.key === 'Enter' || e.key === 'Go') login(); });
   document.getElementById('btn-logout').addEventListener('click', logout);
   document.getElementById('btn-try-it').addEventListener('click', loginAsGuest);
   document.getElementById('demo-banner-exit').addEventListener('click', logout);
