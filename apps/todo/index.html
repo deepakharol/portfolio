@@ -151,6 +151,15 @@
       <label>Description</label>
       <textarea class="form-input" id="new-description" rows="3" placeholder="Optional description…"></textarea>
     </div>
+    <div class="form-field">
+      <label>Attachments</label>
+      <div class="upload-zone upload-zone-sm" id="new-upload-zone">
+        <i class="fas fa-paperclip"></i>
+        <span>Click to attach files or drag & drop</span>
+      </div>
+      <input type="file" id="new-file-input" multiple>
+      <div id="new-file-list" class="new-file-list"></div>
+    </div>
     <div class="modal-footer">
       <button class="btn-cancel" id="btn-cancel-create">Cancel</button>
       <button class="btn-create" id="btn-confirm-create">

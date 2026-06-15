@@ -622,6 +622,48 @@ html, body {
   display: none;
 }
 
+.upload-zone-sm {
+  padding: 0.75rem 1rem;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.upload-zone-sm i { font-size: 1rem; margin: 0; }
+
+.new-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.new-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  background: var(--surface2);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.new-file-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+
+.new-file-remove {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
 /* ===== Lightbox ===== */
 #lightbox {
   display: none;

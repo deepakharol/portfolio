@@ -4,6 +4,7 @@ let tasks = [];
 let currentTaskId = null;
 let currentFilter = 'all';
 let saveTimer = null;
+let pendingFiles = []; // files queued in the create modal
 
 // ===== Auth =====
 
@@ -168,10 +169,14 @@ async function createTask() {
     })
   });
 
+  const filesToUpload = [...pendingFiles];
   closeCreateModal();
+
   if (data?.id) {
+    currentTaskId = data.id;
     await loadTasks();
-    selectTask(data.id);
+    await selectTask(data.id);
+    if (filesToUpload.length) await uploadFiles(filesToUpload);
   }
 }
 
@@ -365,12 +370,38 @@ function openCreateModal() {
   document.getElementById('new-description').value = '';
   document.getElementById('new-priority').value = 'P1';
   document.getElementById('new-due').value = new Date().toISOString().split('T')[0];
+  pendingFiles = [];
+  renderPendingFiles();
   document.getElementById('create-modal').classList.add('open');
   document.getElementById('new-title').focus();
 }
 
 function closeCreateModal() {
+  pendingFiles = [];
+  renderPendingFiles();
   document.getElementById('create-modal').classList.remove('open');
+}
+
+function addPendingFiles(files) {
+  pendingFiles.push(...files);
+  renderPendingFiles();
+}
+
+function removePendingFile(index) {
+  pendingFiles.splice(index, 1);
+  renderPendingFiles();
+}
+
+function renderPendingFiles() {
+  const list = document.getElementById('new-file-list');
+  if (!pendingFiles.length) { list.innerHTML = ''; return; }
+  list.innerHTML = pendingFiles.map((f, i) => `
+    <div class="new-file-item">
+      <i class="fas ${fileIcon(f.type)}" style="margin-right:0.4rem;color:var(--primary);flex-shrink:0"></i>
+      <span title="${esc(f.name)}">${esc(f.name)}</span>
+      <button class="new-file-remove" onclick="removePendingFile(${i})"><i class="fas fa-times"></i></button>
+    </div>
+  `).join('');
 }
 
 // ===== Utils =====
@@ -446,6 +477,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('add-subtask-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') addSubtask(e.target.value);
   });
+
+  // Modal file attachment
+  const newUploadZone = document.getElementById('new-upload-zone');
+  const newFileInput = document.getElementById('new-file-input');
+  newUploadZone.addEventListener('click', () => newFileInput.click());
+  newFileInput.addEventListener('change', () => { addPendingFiles([...newFileInput.files]); newFileInput.value = ''; });
+  newUploadZone.addEventListener('dragover', e => { e.preventDefault(); newUploadZone.classList.add('drag-over'); });
+  newUploadZone.addEventListener('dragleave', () => newUploadZone.classList.remove('drag-over'));
+  newUploadZone.addEventListener('drop', e => { e.preventDefault(); newUploadZone.classList.remove('drag-over'); addPendingFiles([...e.dataTransfer.files]); });
 
   // File upload
   const uploadZone = document.getElementById('upload-zone');
