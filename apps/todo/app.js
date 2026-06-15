@@ -4,7 +4,8 @@ let tasks = [];
 let currentTaskId = null;
 let currentFilter = 'all';
 let saveTimer = null;
-let pendingFiles = []; // files queued in the create modal
+let pendingFiles = [];
+let tables = [];
 
 // ===== Auth =====
 
@@ -12,7 +13,6 @@ async function login() {
   const pin = document.getElementById('pin-input').value;
   const err = document.getElementById('login-error');
   err.style.display = 'none';
-
   try {
     const res = await fetch(`${API}/auth`, {
       method: 'POST',
@@ -34,9 +34,7 @@ async function login() {
 
 function logout() {
   localStorage.removeItem('todo_token');
-  token = null;
-  tasks = [];
-  currentTaskId = null;
+  token = null; tasks = []; currentTaskId = null;
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('pin-input').value = '';
@@ -48,15 +46,12 @@ async function showApp() {
   await loadTasks();
 }
 
-// ===== API helpers =====
+// ===== API Helpers =====
 
 async function apiFetch(path, options = {}) {
   const res = await fetch(`${API}${path}`, {
     ...options,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      ...(options.headers || {})
-    }
+    headers: { 'Authorization': `Bearer ${token}`, ...(options.headers || {}) }
   });
   if (res.status === 401) { logout(); return null; }
   return res;
@@ -78,10 +73,7 @@ async function loadTasks() {
   if (!data) return;
   tasks = data;
   renderTaskList();
-  if (currentTaskId) {
-    const still = tasks.find(t => t.id === currentTaskId);
-    if (still) renderTaskCard(still);
-  }
+  if (currentTaskId && tasks.find(t => t.id === currentTaskId)) renderTaskCard(tasks.find(t => t.id === currentTaskId));
 }
 
 function filteredTasks() {
@@ -90,7 +82,7 @@ function filteredTasks() {
     case 'today': return tasks.filter(t => t.due_date === today && t.status !== 'done');
     case 'overdue': return tasks.filter(t => t.due_date < today && t.status !== 'done');
     case 'done': return tasks.filter(t => t.status === 'done');
-    case 'P1': case 'P2': case 'P3': case 'P4':
+    case 'P0': case 'P1': case 'P2': case 'P3':
       return tasks.filter(t => t.priority === currentFilter && t.status !== 'done');
     default: return tasks;
   }
@@ -100,29 +92,26 @@ function renderTaskList() {
   const list = document.getElementById('task-list');
   const visible = filteredTasks();
   const today = new Date().toISOString().split('T')[0];
-
   if (!visible.length) {
     list.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No tasks here</p></div>`;
     return;
   }
-
   list.innerHTML = visible.map(t => {
     const overdue = t.due_date < today && t.status !== 'done';
-    const classes = ['task-card', t.status === 'done' ? 'done' : '', overdue ? 'overdue' : '', t.id === currentTaskId ? 'selected' : ''].filter(Boolean).join(' ');
-    return `
-      <div class="${classes}" data-id="${t.id}" onclick="selectTask('${t.id}')">
-        <div class="task-card-top">
-          <div class="task-title">${esc(t.title)}</div>
-          <span class="priority-badge ${t.priority}">${t.priority}</span>
+    const cls = ['task-card', t.status === 'done' ? 'done' : '', overdue ? 'overdue' : '', t.id === currentTaskId ? 'selected' : ''].filter(Boolean).join(' ');
+    return `<div class="${cls}" data-id="${t.id}" onclick="selectTask('${t.id}')">
+      <div class="task-card-top">
+        <div class="task-title">${esc(t.title)}</div>
+        <span class="priority-badge ${t.priority}">${t.priority}</span>
+      </div>
+      <div class="task-meta">
+        <span class="task-due"><i class="fas fa-calendar-alt"></i> ${formatDate(t.due_date)}</span>
+        <div class="task-counts">
+          ${t.subtask_count > 0 ? `<span class="task-count-item"><i class="fas fa-list-check"></i> ${t.subtask_done}/${t.subtask_count}</span>` : ''}
+          ${t.attachment_count > 0 ? `<span class="task-count-item"><i class="fas fa-paperclip"></i> ${t.attachment_count}</span>` : ''}
         </div>
-        <div class="task-meta">
-          <span class="task-due"><i class="fas fa-calendar-alt"></i> ${formatDate(t.due_date)}</span>
-          <div class="task-counts">
-            ${t.subtask_count > 0 ? `<span class="task-count-item"><i class="fas fa-list-check"></i> ${t.subtask_done}/${t.subtask_count}</span>` : ''}
-            ${t.attachment_count > 0 ? `<span class="task-count-item"><i class="fas fa-paperclip"></i> ${t.attachment_count}</span>` : ''}
-          </div>
-        </div>
-      </div>`;
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -138,27 +127,24 @@ async function selectTask(id) {
 function renderDetailPanel(task) {
   document.getElementById('detail-empty').style.display = 'none';
   document.getElementById('detail-content').style.display = 'block';
-
   document.getElementById('detail-title').value = task.title;
   document.getElementById('detail-description').value = task.description || '';
-
   const ps = document.getElementById('detail-priority');
   ps.value = task.priority;
   ps.className = `meta-select priority-select ${task.priority}`;
-
   document.getElementById('detail-due').value = task.due_date;
   document.getElementById('detail-status').value = task.status;
-
+  tables = JSON.parse(task.table_data || '[]');
   renderSubtasks(task.subtasks || []);
   renderAttachments(task.attachments || []);
+  renderTables();
 }
 
-// ===== Task CRUD =====
+// ===== CRUD =====
 
 async function createTask() {
   const title = document.getElementById('new-title').value.trim();
   if (!title) { document.getElementById('new-title').focus(); return; }
-
   const data = await apiJSON('/tasks', {
     method: 'POST',
     body: JSON.stringify({
@@ -168,10 +154,8 @@ async function createTask() {
       due_date: document.getElementById('new-due').value || new Date().toISOString().split('T')[0]
     })
   });
-
   const filesToUpload = [...pendingFiles];
   closeCreateModal();
-
   if (data?.id) {
     currentTaskId = data.id;
     await loadTasks();
@@ -188,9 +172,7 @@ function scheduleDetailSave() {
 async function saveDetail() {
   if (!currentTaskId) return;
   const priority = document.getElementById('detail-priority').value;
-  const ps = document.getElementById('detail-priority');
-  ps.className = `meta-select priority-select ${priority}`;
-
+  document.getElementById('detail-priority').className = `meta-select priority-select ${priority}`;
   await apiJSON(`/tasks/${currentTaskId}`, {
     method: 'PUT',
     body: JSON.stringify({
@@ -198,7 +180,8 @@ async function saveDetail() {
       description: document.getElementById('detail-description').value,
       priority,
       due_date: document.getElementById('detail-due').value,
-      status: document.getElementById('detail-status').value
+      status: document.getElementById('detail-status').value,
+      table_data: JSON.stringify(tables)
     })
   });
   await loadTasks();
@@ -208,6 +191,7 @@ async function deleteTask() {
   if (!currentTaskId || !confirm('Delete this task and all its data?')) return;
   await apiFetch(`/tasks/${currentTaskId}`, { method: 'DELETE' });
   currentTaskId = null;
+  tables = [];
   document.getElementById('detail-empty').style.display = 'flex';
   document.getElementById('detail-content').style.display = 'none';
   await loadTasks();
@@ -216,22 +200,19 @@ async function deleteTask() {
 // ===== Subtasks =====
 
 function renderSubtasks(subtasks) {
-  const list = document.getElementById('subtask-list');
-  list.innerHTML = subtasks.map(s => `
+  document.getElementById('subtask-list').innerHTML = subtasks.map(s => `
     <div class="subtask-item" data-id="${s.id}">
       <input type="checkbox" class="subtask-check" ${s.completed ? 'checked' : ''} onchange="toggleSubtask('${s.id}', this.checked)">
       <input type="text" class="subtask-text ${s.completed ? 'done' : ''}" value="${esc(s.content)}"
-        data-id="${s.id}" onblur="updateSubtaskText('${s.id}', this.value)" onkeydown="subtaskKeydown(event, '${s.id}')">
+        data-id="${s.id}" onblur="updateSubtaskText('${s.id}', this.value)" onkeydown="subtaskKeydown(event)">
       <button class="subtask-delete" onclick="deleteSubtask('${s.id}')"><i class="fas fa-times"></i></button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 async function addSubtask(content) {
   if (!content.trim() || !currentTaskId) return;
   await apiFetch(`/tasks/${currentTaskId}/subtasks`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content: content.trim() })
   });
   document.getElementById('add-subtask-input').value = '';
@@ -239,8 +220,7 @@ async function addSubtask(content) {
 }
 
 async function toggleSubtask(id, completed) {
-  const input = document.querySelector(`.subtask-text[data-id="${id}"]`);
-  if (input) input.classList.toggle('done', completed);
+  document.querySelector(`.subtask-text[data-id="${id}"]`)?.classList.toggle('done', completed);
   await batchUpdateSubtasks();
 }
 
@@ -251,8 +231,7 @@ async function updateSubtaskText(id, content) {
 
 async function deleteSubtask(id) {
   await apiFetch(`/tasks/${currentTaskId}/subtasks`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+    method: 'DELETE', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id })
   });
   await refreshSubtasks();
@@ -267,8 +246,7 @@ async function batchUpdateSubtasks() {
     order_index: i
   }));
   await apiFetch(`/tasks/${currentTaskId}/subtasks`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(subtasks)
   });
   await loadTasks();
@@ -279,15 +257,149 @@ async function refreshSubtasks() {
   if (!res) return;
   const task = await res.json();
   renderSubtasks(task.subtasks || []);
-  tasks = tasks.map(t => t.id === currentTaskId ? { ...t, subtask_count: task.subtasks.length, subtask_done: task.subtasks.filter(s => s.completed).length } : t);
+  tasks = tasks.map(t => t.id === currentTaskId
+    ? { ...t, subtask_count: task.subtasks.length, subtask_done: task.subtasks.filter(s => s.completed).length }
+    : t);
   renderTaskList();
 }
 
-function subtaskKeydown(e, id) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    document.getElementById('add-subtask-input').focus();
+function subtaskKeydown(e) {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('add-subtask-input').focus(); }
+}
+
+// ===== Tables =====
+
+function renderTables() {
+  const container = document.getElementById('tables-container');
+  if (!tables.length) { container.innerHTML = ''; return; }
+  container.innerHTML = `<div class="tables-list">${tables.map((t, ti) => renderTableHTML(t, ti)).join('')}</div>`;
+}
+
+function renderTableHTML(t, ti) {
+  const colDelCells = t.columns.map((_, ci) =>
+    `<td><button class="btn-del-col" onclick="deleteTableCol(${ti},${ci})" title="Delete column"><i class="fas fa-times"></i></button></td>`
+  ).join('');
+
+  const headerCells = t.columns.map((col, ci) =>
+    `<th><input value="${esc(col)}" placeholder="Column ${ci+1}" onchange="updateTableCol(${ti},${ci},this.value)" onblur="saveDetail()"></th>`
+  ).join('');
+
+  const rows = t.rows.map((row, ri) => {
+    const cells = row.map((cell, ci) =>
+      `<td><input value="${esc(cell)}" onchange="updateTableCell(${ti},${ri},${ci},this.value)" onblur="saveDetail()"></td>`
+    ).join('');
+    return `<tr>${cells}<td style="border:none;width:24px;padding:0;">
+      <button class="btn-del-row" onclick="deleteTableRow(${ti},${ri})" title="Delete row"><i class="fas fa-times"></i></button>
+    </td></tr>`;
+  }).join('');
+
+  return `<div class="task-table-wrapper">
+    <div class="task-table-header">
+      <input class="task-table-title" value="${esc(t.title || '')}" placeholder="Table title (optional)" onchange="updateTableTitle(${ti},this.value)" onblur="saveDetail()">
+      <div class="task-table-controls">
+        <button class="btn-table-ctrl" onclick="addTableRow(${ti})"><i class="fas fa-plus"></i> Row</button>
+        <button class="btn-table-ctrl" onclick="addTableCol(${ti})"><i class="fas fa-plus"></i> Col</button>
+        <button class="btn-table-ctrl del" onclick="deleteTable(${ti})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+    <div class="task-table-scroll">
+      <table class="task-table">
+        <thead>
+          <tr class="col-del-row">${colDelCells}<td style="border:none;width:24px"></td></tr>
+          <tr>${headerCells}<th style="border:none;width:24px"></th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function createTable(rows, cols) {
+  tables.push({
+    id: crypto.randomUUID(),
+    title: '',
+    columns: Array.from({ length: cols }, (_, i) => `Column ${i + 1}`),
+    rows: Array.from({ length: rows }, () => Array(cols).fill(''))
+  });
+  renderTables();
+  saveDetail();
+}
+
+function deleteTable(ti) {
+  tables.splice(ti, 1);
+  renderTables();
+  saveDetail();
+}
+
+function addTableRow(ti) {
+  tables[ti].rows.push(Array(tables[ti].columns.length).fill(''));
+  renderTables();
+  saveDetail();
+}
+
+function addTableCol(ti) {
+  tables[ti].columns.push(`Column ${tables[ti].columns.length + 1}`);
+  tables[ti].rows.forEach(r => r.push(''));
+  renderTables();
+  saveDetail();
+}
+
+function deleteTableRow(ti, ri) {
+  if (tables[ti].rows.length <= 1) return;
+  tables[ti].rows.splice(ri, 1);
+  renderTables();
+  saveDetail();
+}
+
+function deleteTableCol(ti, ci) {
+  if (tables[ti].columns.length <= 1) return;
+  tables[ti].columns.splice(ci, 1);
+  tables[ti].rows.forEach(r => r.splice(ci, 1));
+  renderTables();
+  saveDetail();
+}
+
+function updateTableTitle(ti, val) { tables[ti].title = val; }
+function updateTableCol(ti, ci, val) { tables[ti].columns[ci] = val; }
+function updateTableCell(ti, ri, ci, val) { tables[ti].rows[ri][ci] = val; }
+
+// ===== Table Picker =====
+
+function initTablePicker() {
+  const btn = document.getElementById('btn-add-table');
+  const picker = document.getElementById('table-picker');
+  const grid = document.getElementById('picker-grid');
+  const label = document.getElementById('picker-label');
+  const ROWS = 8, COLS = 8;
+
+  // Build grid cells
+  for (let r = 1; r <= ROWS; r++) {
+    for (let c = 1; c <= COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'picker-cell';
+      cell.dataset.r = r; cell.dataset.c = c;
+      cell.addEventListener('mouseenter', () => {
+        label.textContent = `${r} × ${c}`;
+        document.querySelectorAll('.picker-cell').forEach(el => {
+          el.classList.toggle('highlighted', +el.dataset.r <= r && +el.dataset.c <= c);
+        });
+      });
+      cell.addEventListener('click', () => {
+        createTable(r, c);
+        picker.classList.remove('open');
+      });
+      grid.appendChild(cell);
+    }
   }
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    picker.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!picker.contains(e.target) && e.target !== btn) picker.classList.remove('open');
+  });
 }
 
 // ===== Attachments =====
@@ -295,28 +407,22 @@ function subtaskKeydown(e, id) {
 function renderAttachments(attachments) {
   const grid = document.getElementById('attachment-grid');
   if (!attachments.length) { grid.innerHTML = ''; return; }
-
   grid.innerHTML = attachments.map(a => {
     const isImage = a.content_type?.startsWith('image/');
-    const imgUrl = `/apps/todo/api/attachments/${a.id}`;
-    return `
-      <div class="attachment-item">
-        ${isImage
-          ? `<img class="attachment-thumb" src="${imgUrl}" alt="${esc(a.filename)}" onclick="openLightbox('${imgUrl}')" loading="lazy">`
-          : `<div class="attachment-file-icon"><i class="${fileIcon(a.content_type)}"></i><span>${esc(fileExt(a.filename))}</span></div>`
-        }
-        <div class="attachment-footer">
-          <span class="attachment-name" title="${esc(a.filename)}">${esc(a.filename)}</span>
-          <div class="attachment-actions">
-            <a class="btn-attach-action download" href="${imgUrl}?download=1" download="${esc(a.filename)}" title="Download">
-              <i class="fas fa-download"></i>
-            </a>
-            <button class="btn-attach-action delete" onclick="deleteAttachment('${a.id}')" title="Remove">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
+    const url = `/apps/todo/api/attachments/${a.id}`;
+    return `<div class="attachment-item">
+      ${isImage
+        ? `<img class="attachment-thumb" src="${url}" alt="${esc(a.filename)}" onclick="openLightbox('${url}')" loading="lazy">`
+        : `<div class="attachment-file-icon"><i class="${fileIcon(a.content_type)}"></i><span>${esc(fileExt(a.filename))}</span></div>`
+      }
+      <div class="attachment-footer">
+        <span class="attachment-name" title="${esc(a.filename)}">${esc(a.filename)}</span>
+        <div class="attachment-actions">
+          <a class="btn-attach-action download" href="${url}?download=1" download="${esc(a.filename)}" title="Download"><i class="fas fa-download"></i></a>
+          <button class="btn-attach-action delete" onclick="deleteAttachment('${a.id}')" title="Remove"><i class="fas fa-trash"></i></button>
         </div>
-      </div>`;
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -324,14 +430,12 @@ async function uploadFiles(files) {
   if (!files.length || !currentTaskId) return;
   const progress = document.getElementById('upload-progress');
   progress.style.display = 'block';
-
   for (const file of files) {
     const form = new FormData();
     form.append('file', file);
     form.append('task_id', currentTaskId);
     await apiFetch('/attachments', { method: 'POST', body: form });
   }
-
   progress.style.display = 'none';
   const res = await apiFetch(`/tasks/${currentTaskId}`);
   if (!res) return;
@@ -357,7 +461,6 @@ function openLightbox(src) {
   document.getElementById('lightbox-img').src = src + '?t=' + Date.now();
   document.getElementById('lightbox').classList.add('open');
 }
-
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   document.getElementById('lightbox-img').src = '';
@@ -373,7 +476,7 @@ function openCreateModal() {
   pendingFiles = [];
   renderPendingFiles();
   document.getElementById('create-modal').classList.add('open');
-  document.getElementById('new-title').focus();
+  setTimeout(() => document.getElementById('new-title').focus(), 50);
 }
 
 function closeCreateModal() {
@@ -382,26 +485,54 @@ function closeCreateModal() {
   document.getElementById('create-modal').classList.remove('open');
 }
 
-function addPendingFiles(files) {
-  pendingFiles.push(...files);
-  renderPendingFiles();
-}
-
-function removePendingFile(index) {
-  pendingFiles.splice(index, 1);
-  renderPendingFiles();
-}
-
+function addPendingFiles(files) { pendingFiles.push(...files); renderPendingFiles(); }
+function removePendingFile(index) { pendingFiles.splice(index, 1); renderPendingFiles(); }
 function renderPendingFiles() {
   const list = document.getElementById('new-file-list');
   if (!pendingFiles.length) { list.innerHTML = ''; return; }
   list.innerHTML = pendingFiles.map((f, i) => `
     <div class="new-file-item">
-      <i class="fas ${fileIcon(f.type)}" style="margin-right:0.4rem;color:var(--primary);flex-shrink:0"></i>
+      <i class="fas ${fileIcon(f.type)}" style="color:var(--primary);flex-shrink:0"></i>
       <span title="${esc(f.name)}">${esc(f.name)}</span>
       <button class="new-file-remove" onclick="removePendingFile(${i})"><i class="fas fa-times"></i></button>
-    </div>
-  `).join('');
+    </div>`).join('');
+}
+
+// ===== Resize Handle =====
+
+function initResizeHandle() {
+  const handle = document.getElementById('resize-handle');
+  const panel = document.getElementById('task-list-panel');
+  if (!handle || !panel) return;
+
+  const saved = localStorage.getItem('todo_panel_width');
+  if (saved) panel.style.width = saved;
+
+  let startX, startWidth;
+
+  handle.addEventListener('mousedown', (e) => {
+    startX = e.clientX;
+    startWidth = parseInt(getComputedStyle(panel).width);
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (e) => {
+      const w = startWidth + (e.clientX - startX);
+      if (w >= 220 && w <= 560) panel.style.width = w + 'px';
+    };
+    const onUp = () => {
+      handle.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      localStorage.setItem('todo_panel_width', panel.style.width);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
 }
 
 // ===== Utils =====
@@ -419,9 +550,7 @@ function formatDate(d) {
   return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
-function fileExt(filename) {
-  return filename.split('.').pop()?.toUpperCase() || 'FILE';
-}
+function fileExt(filename) { return filename.split('.').pop()?.toUpperCase() || 'FILE'; }
 
 function fileIcon(contentType) {
   if (!contentType) return 'fas fa-file';
@@ -435,7 +564,7 @@ function fileIcon(contentType) {
   return 'fas fa-file';
 }
 
-// ===== Event Listeners =====
+// ===== Boot =====
 
 document.addEventListener('DOMContentLoaded', () => {
   // Auth
@@ -447,12 +576,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-new-task').addEventListener('click', openCreateModal);
   document.getElementById('btn-cancel-create').addEventListener('click', closeCreateModal);
   document.getElementById('btn-confirm-create').addEventListener('click', createTask);
-  document.getElementById('create-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeCreateModal();
-  });
-  document.getElementById('new-title').addEventListener('keydown', e => {
-    if (e.key === 'Enter') createTask();
-  });
+  document.getElementById('create-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeCreateModal(); });
+  document.getElementById('new-title').addEventListener('keydown', e => { if (e.key === 'Enter') createTask(); });
 
   // Filters
   document.getElementById('filter-tabs').addEventListener('click', e => {
@@ -465,52 +590,45 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Detail auto-save
-  ['detail-title', 'detail-description', 'detail-priority', 'detail-due', 'detail-status'].forEach(id => {
+  ['detail-title','detail-description','detail-priority','detail-due','detail-status'].forEach(id => {
     document.getElementById(id).addEventListener('input', scheduleDetailSave);
     document.getElementById(id).addEventListener('change', scheduleDetailSave);
   });
 
-  // Delete
+  // Delete task
   document.getElementById('btn-delete-task').addEventListener('click', deleteTask);
 
-  // Subtask add
+  // Subtask
   document.getElementById('add-subtask-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') addSubtask(e.target.value);
   });
 
-  // Modal file attachment
-  const newUploadZone = document.getElementById('new-upload-zone');
-  const newFileInput = document.getElementById('new-file-input');
-  newUploadZone.addEventListener('click', () => newFileInput.click());
-  newFileInput.addEventListener('change', () => { addPendingFiles([...newFileInput.files]); newFileInput.value = ''; });
-  newUploadZone.addEventListener('dragover', e => { e.preventDefault(); newUploadZone.classList.add('drag-over'); });
-  newUploadZone.addEventListener('dragleave', () => newUploadZone.classList.remove('drag-over'));
-  newUploadZone.addEventListener('drop', e => { e.preventDefault(); newUploadZone.classList.remove('drag-over'); addPendingFiles([...e.dataTransfer.files]); });
-
-  // File upload
+  // Detail file upload
   const uploadZone = document.getElementById('upload-zone');
   const fileInput = document.getElementById('file-input');
-
   uploadZone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => uploadFiles([...fileInput.files]));
-
   uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadZone.classList.remove('drag-over');
-    uploadFiles([...e.dataTransfer.files]);
-  });
+  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); uploadFiles([...e.dataTransfer.files]); });
+
+  // Modal file attachment
+  const newZone = document.getElementById('new-upload-zone');
+  const newInput = document.getElementById('new-file-input');
+  newZone.addEventListener('click', () => newInput.click());
+  newInput.addEventListener('change', () => { addPendingFiles([...newInput.files]); newInput.value = ''; });
+  newZone.addEventListener('dragover', e => { e.preventDefault(); newZone.classList.add('drag-over'); });
+  newZone.addEventListener('dragleave', () => newZone.classList.remove('drag-over'));
+  newZone.addEventListener('drop', e => { e.preventDefault(); newZone.classList.remove('drag-over'); addPendingFiles([...e.dataTransfer.files]); });
 
   // Lightbox
   document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-  document.getElementById('lightbox').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeLightbox();
-  });
+  document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) closeLightbox(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
-  // Boot
-  if (token) {
-    showApp();
-  }
+  // Init features
+  initResizeHandle();
+  initTablePicker();
+
+  if (token) showApp();
 });

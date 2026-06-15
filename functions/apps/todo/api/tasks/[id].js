@@ -27,7 +27,7 @@ export async function onRequestPut({ params, request, env }) {
   if (!task) return json({ error: 'Not found' }, 404);
 
   const body = await request.json();
-  const fields = ['title', 'description', 'priority', 'due_date', 'status'];
+  const fields = ['title', 'description', 'priority', 'due_date', 'status', 'table_data'];
   const updates = [];
   const values = [];
 

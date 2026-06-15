@@ -40,40 +40,44 @@
   </header>
 
   <div class="app-body">
-    <!-- Task List -->
-    <div class="task-list-panel">
+    <!-- Task List Panel -->
+    <div class="task-list-panel" id="task-list-panel">
       <div class="filter-bar">
         <div class="filter-tabs" id="filter-tabs">
           <button class="filter-tab active" data-filter="all">All</button>
           <button class="filter-tab" data-filter="today">Today</button>
           <button class="filter-tab" data-filter="overdue">Overdue</button>
+          <button class="filter-tab" data-filter="P0">P0</button>
           <button class="filter-tab" data-filter="P1">P1</button>
           <button class="filter-tab" data-filter="P2">P2</button>
           <button class="filter-tab" data-filter="P3">P3</button>
-          <button class="filter-tab" data-filter="P4">P4</button>
           <button class="filter-tab" data-filter="done">Done</button>
         </div>
       </div>
       <div class="task-list-scroll" id="task-list"></div>
     </div>
 
-    <!-- Task Detail -->
+    <!-- Resize Handle -->
+    <div class="resize-handle" id="resize-handle"></div>
+
+    <!-- Task Detail Panel -->
     <div class="task-detail-panel" id="task-detail-panel">
       <div class="detail-empty" id="detail-empty">
         <i class="fas fa-clipboard-list"></i>
         <p>Select a task to view details</p>
       </div>
       <div class="detail-content" id="detail-content" style="display:none;">
+
         <!-- Title & Meta -->
         <div class="detail-header">
           <div class="detail-title-area">
             <input type="text" class="detail-title" id="detail-title" placeholder="Task title">
             <div class="detail-meta-row">
               <select class="meta-select priority-select" id="detail-priority">
-                <option value="P1">🔴 P1 - Critical</option>
-                <option value="P2">🟠 P2 - High</option>
-                <option value="P3">🔵 P3 - Medium</option>
-                <option value="P4">⚪ P4 - Low</option>
+                <option value="P0">🚨 P0 - Urgent</option>
+                <option value="P1">🔴 P1 - High</option>
+                <option value="P2">🟠 P2 - Medium</option>
+                <option value="P3">🔵 P3 - Low</option>
               </select>
               <input type="date" class="meta-select" id="detail-due">
               <select class="meta-select" id="detail-status">
@@ -103,6 +107,23 @@
           <div class="add-subtask-row">
             <input type="text" class="add-subtask-input" id="add-subtask-input" placeholder="+ Add a bullet point…">
           </div>
+        </div>
+
+        <!-- Tables -->
+        <div class="detail-section">
+          <div class="section-header-row">
+            <h3><i class="fas fa-table"></i> Tables</h3>
+            <div class="table-picker-wrapper">
+              <button class="btn-add-table" id="btn-add-table">
+                <i class="fas fa-plus"></i> Add Table
+              </button>
+              <div class="table-picker" id="table-picker">
+                <div class="picker-grid" id="picker-grid"></div>
+                <div class="picker-label" id="picker-label">Hover to select size</div>
+              </div>
+            </div>
+          </div>
+          <div id="tables-container"></div>
         </div>
 
         <!-- Attachments -->
@@ -136,10 +157,10 @@
       <div class="form-field">
         <label>Priority</label>
         <select class="form-input" id="new-priority">
-          <option value="P1">🔴 P1 - Critical</option>
-          <option value="P2">🟠 P2 - High</option>
-          <option value="P3">🔵 P3 - Medium</option>
-          <option value="P4">⚪ P4 - Low</option>
+          <option value="P0">🚨 P0 - Urgent</option>
+          <option value="P1" selected>🔴 P1 - High</option>
+          <option value="P2">🟠 P2 - Medium</option>
+          <option value="P3">🔵 P3 - Low</option>
         </select>
       </div>
       <div class="form-field">

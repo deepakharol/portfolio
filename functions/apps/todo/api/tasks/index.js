@@ -18,7 +18,7 @@ export async function onRequestGet({ env }) {
       (SELECT COUNT(*) FROM attachments a WHERE a.task_id = t.id) as attachment_count
     FROM tasks t
     ORDER BY
-      CASE priority WHEN 'P1' THEN 1 WHEN 'P2' THEN 2 WHEN 'P3' THEN 3 WHEN 'P4' THEN 4 ELSE 5 END,
+      CASE priority WHEN 'P0' THEN 1 WHEN 'P1' THEN 2 WHEN 'P2' THEN 3 WHEN 'P3' THEN 4 ELSE 5 END,
       due_date ASC,
       created_at DESC
   `).all();
@@ -28,7 +28,7 @@ export async function onRequestGet({ env }) {
 // POST /apps/todo/api/tasks
 export async function onRequestPost({ request, env }) {
   const body = await request.json();
-  const { title, description = '', priority = 'P1', due_date, status = 'pending' } = body;
+  const { title, description = '', priority = 'P1', due_date, status = 'pending', table_data = '[]' } = body;
 
   if (!title?.trim()) return json({ error: 'Title is required' }, 400);
 
@@ -36,9 +36,9 @@ export async function onRequestPost({ request, env }) {
   const today = new Date().toISOString().split('T')[0];
 
   await env.DB.prepare(`
-    INSERT INTO tasks (id, title, description, priority, due_date, status)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).bind(id, title.trim(), description, priority, due_date || today, status).run();
+    INSERT INTO tasks (id, title, description, priority, due_date, status, table_data)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, title.trim(), description, priority, due_date || today, status, table_data).run();
 
   const task = await env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(id).first();
   return json(task, 201);
