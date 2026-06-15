@@ -12,13 +12,28 @@ A 401 means the token is missing, invalid, or expired.
 
 ---
 
+## POST /guest-auth
+
+Get a 1-hour guest JWT. No PIN required. Used for the demo/sandbox mode.
+
+**Request** — no body needed
+
+**Response 200**
+```json
+{ "token": "<jwt>", "role": "guest", "expiresIn": 3600 }
+```
+
+Guest JWT payload: `{ sub: "guest", role: "guest", iat: <unix>, exp: <unix+1h> }`
+
+---
+
 ## POST /auth
 
 Validate PIN and receive a JWT.
 
 **Request**
 ```json
-{ "pin": "698969" }
+{ "pin": "<your-pin>" }
 ```
 
 **Response 200**

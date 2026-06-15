@@ -92,9 +92,25 @@ Every subsequent request:
   → 401 if invalid/expired → frontend auto-logs out
 ```
 
-**Secrets (set in Cloudflare Dashboard → Settings → Environment Variables, encrypted):**
-- `PIN_HASH` — `echo -n "YOUR_PIN" | shasum -a 256 | awk '{print $1}'`
-- `JWT_SECRET` — random 32+ char string
+**Secrets (set in Cloudflare Dashboard → Pages project → Settings → Environment Variables, type: Secret):**
+- `PIN_HASH` — SHA-256 hex of your chosen PIN. Generate with:
+  ```bash
+  echo -n "YOUR_PIN_HERE" | shasum -a 256 | awk '{print $1}'
+  ```
+  Paste only the 64-character hex string. Do NOT include the filename suffix (` -`) that shasum appends.
+- `JWT_SECRET` — any random 32+ character string. Generate with:
+  ```bash
+  openssl rand -hex 32
+  ```
+
+**To change your PIN:**
+1. Run the shasum command above with your new PIN
+2. Go to Cloudflare Dashboard → Pages → portfolio → Settings → Environment Variables
+3. Update `PIN_HASH` with the new 64-char hex value
+4. Redeploy (or wait for next auto-deploy)
+5. Your old JWT tokens remain valid until they expire (30 days); logout and re-login with new PIN
+
+> ⚠️ Never commit the actual PIN value or its hash to the repository. Only store it in Cloudflare's encrypted environment variable store.
 
 ---
 

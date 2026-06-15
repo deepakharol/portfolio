@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   due_date    TEXT DEFAULT (date('now')),              -- 'YYYY-MM-DD'
   status      TEXT DEFAULT 'pending',                  -- 'pending' | 'in_progress' | 'done'
   table_data  TEXT DEFAULT '[]',                       -- JSON string — see Table JSON below
+  demo        INTEGER DEFAULT 0,                       -- 0 = owner task, 1 = shared guest/demo task
   created_at  TEXT DEFAULT (datetime('now')),          -- ISO 8601 datetime
   updated_at  TEXT DEFAULT (datetime('now'))           -- updated on every PUT
 );

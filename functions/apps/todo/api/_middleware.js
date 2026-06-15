@@ -1,30 +1,29 @@
 import { verifyJWT } from './_jwt.js';
 
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
 export async function onRequest(context) {
   const url = new URL(context.request.url);
 
-  // Allow auth endpoint through without token check
-  if (url.pathname.endsWith('/api/auth')) {
+  // Auth endpoints pass through without a token check
+  if (url.pathname.endsWith('/api/auth') || url.pathname.endsWith('/api/guest-auth')) {
     return context.next();
   }
 
   const authHeader = context.request.headers.get('Authorization') || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
-  if (!token) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
+  if (!token) return json({ error: 'Unauthorized' }, 401);
 
-  const valid = await verifyJWT(token, context.env.JWT_SECRET);
-  if (!valid) {
-    return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
+  const payload = await verifyJWT(token, context.env.JWT_SECRET);
+  if (!payload) return json({ error: 'Invalid or expired token' }, 401);
 
+  // Expose role to all downstream route handlers via context.data
+  context.data.isGuest = payload.role === 'guest';
   return context.next();
 }

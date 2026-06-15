@@ -5,9 +5,15 @@ function json(data, status = 200) {
   });
 }
 
+function demoFilter(isGuest) {
+  return isGuest ? 'AND demo = 1' : 'AND demo = 0';
+}
+
 // GET /apps/todo/api/tasks/:id
-export async function onRequestGet({ params, env }) {
-  const task = await env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(params.id).first();
+export async function onRequestGet({ params, env, data }) {
+  const task = await env.DB.prepare(
+    `SELECT * FROM tasks WHERE id = ? ${demoFilter(data.isGuest)}`
+  ).bind(params.id).first();
   if (!task) return json({ error: 'Not found' }, 404);
 
   const { results: subtasks } = await env.DB.prepare(
@@ -22,8 +28,10 @@ export async function onRequestGet({ params, env }) {
 }
 
 // PUT /apps/todo/api/tasks/:id
-export async function onRequestPut({ params, request, env }) {
-  const task = await env.DB.prepare('SELECT id FROM tasks WHERE id = ?').bind(params.id).first();
+export async function onRequestPut({ params, request, env, data }) {
+  const task = await env.DB.prepare(
+    `SELECT id FROM tasks WHERE id = ? ${demoFilter(data.isGuest)}`
+  ).bind(params.id).first();
   if (!task) return json({ error: 'Not found' }, 404);
 
   const body = await request.json();
@@ -52,18 +60,17 @@ export async function onRequestPut({ params, request, env }) {
 }
 
 // DELETE /apps/todo/api/tasks/:id
-export async function onRequestDelete({ params, env }) {
-  const task = await env.DB.prepare('SELECT id FROM tasks WHERE id = ?').bind(params.id).first();
+export async function onRequestDelete({ params, env, data }) {
+  const task = await env.DB.prepare(
+    `SELECT id FROM tasks WHERE id = ? ${demoFilter(data.isGuest)}`
+  ).bind(params.id).first();
   if (!task) return json({ error: 'Not found' }, 404);
 
-  // Delete R2 attachments before removing DB records
   const { results: attachments } = await env.DB.prepare(
     'SELECT r2_key FROM attachments WHERE task_id = ?'
   ).bind(params.id).all();
 
   await Promise.all(attachments.map(a => env.ATTACHMENTS.delete(a.r2_key)));
-
-  // Cascade deletes subtasks and attachments via FK
   await env.DB.prepare('DELETE FROM tasks WHERE id = ?').bind(params.id).run();
 
   return json({ success: true });

@@ -11,6 +11,7 @@ A private personal task planner accessible only to the owner (Deepak). No public
 
 ## Authentication
 
+### Owner (PIN login)
 - Entry point: full-screen PIN input
 - PIN is SHA-256 hashed; the hash is stored as an encrypted Cloudflare secret (`PIN_HASH`)
 - On correct PIN: receives a signed JWT (30-day expiry), stored in `localStorage`
@@ -18,6 +19,18 @@ A private personal task planner accessible only to the owner (Deepak). No public
 - On page load: if valid JWT in `localStorage`, skip PIN screen and go straight to task list
 - Logout: clears `localStorage`, returns to PIN screen
 - On any 401 from the API: auto-logout
+
+### Guest / Demo Mode
+- "Try it out" button on the login screen — no PIN needed
+- Calls `POST /api/guest-auth`, receives a 1-hour guest JWT
+- Demo banner shown at the top of the app: warns data is shared and expires in 1 hour
+- Guest tasks have `demo = 1` in D1; owner tasks have `demo = 0` — they are fully isolated
+- All guests share one sandbox (they see each other's demo tasks — intentional)
+- Max 100 tasks in the demo sandbox at any time
+- Guest attachments capped at 5MB per file (vs 50MB for owner)
+- Expired demo tasks (> 1 hour old) are lazily deleted on each guest `GET /tasks` call, including their R2 files
+- On guest JWT expiry (1 hour), next API call returns 401 → auto-logout back to login screen
+- "Exit Demo" button in banner also logs out
 
 ---
 

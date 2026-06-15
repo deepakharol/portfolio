@@ -263,6 +263,14 @@ body {
     animation: fadeInUp 0.8s ease 0.4s both;
 }
 
+.exp-counter {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 0.95em;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
 .hero-buttons {
     display: flex;
     gap: 1rem;

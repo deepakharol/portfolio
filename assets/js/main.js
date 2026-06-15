@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initProjectModals();
     initTypingEffect();
     initScrollAnimations();
+    initExperienceCounter();
 
     // Dynamic footer year
     const yearEl = document.getElementById('footer-year');
@@ -426,6 +427,60 @@ function getProjectData(projectId) {
     };
 
     return projects[projectId] || { title: 'Project Details', content: '<p>Project information not available.</p>' };
+}
+
+// Live experience counter — start: July 4 2022, 9:00 AM IST (UTC+5:30 = 03:30 UTC)
+function initExperienceCounter() {
+    const START = new Date('2022-07-04T03:30:00Z');
+    const els = [
+        document.getElementById('exp-counter'),
+        document.getElementById('exp-counter-about')
+    ].filter(Boolean);
+    if (!els.length) return;
+
+    function update() {
+        const now = new Date();
+
+        // Calendar-accurate years and months
+        let years  = now.getUTCFullYear() - START.getUTCFullYear();
+        let months = now.getUTCMonth()    - START.getUTCMonth();
+        if (months < 0) { years--; months += 12; }
+
+        // Anchor = exactly (years, months) after START, same day/time
+        let anchor = new Date(Date.UTC(
+            START.getUTCFullYear() + years,
+            START.getUTCMonth()    + months,
+            START.getUTCDate(),
+            START.getUTCHours(),
+            START.getUTCMinutes(),
+            START.getUTCSeconds()
+        ));
+        // If anchor overshot (e.g. Feb 30 → Mar 2), pull back one month
+        if (anchor > now) {
+            months--;
+            if (months < 0) { years--; months += 12; }
+            anchor = new Date(Date.UTC(
+                START.getUTCFullYear() + years,
+                START.getUTCMonth()    + months,
+                START.getUTCDate(),
+                START.getUTCHours(),
+                START.getUTCMinutes(),
+                START.getUTCSeconds()
+            ));
+        }
+
+        const diff  = now - anchor;
+        const secs  = Math.floor(diff / 1000)     % 60;
+        const mins  = Math.floor(diff / 60000)    % 60;
+        const hours = Math.floor(diff / 3600000)  % 24;
+        const days  = Math.floor(diff / 86400000);
+
+        const text = `${years}y ${months}mo ${days}d ${hours}h ${mins}m ${secs}s`;
+        els.forEach(el => el.textContent = text);
+    }
+
+    update();
+    setInterval(update, 1000);
 }
 
 // Show notification

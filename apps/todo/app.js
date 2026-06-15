@@ -1,5 +1,6 @@
 const API = '/apps/todo/api';
 let token = localStorage.getItem('todo_token');
+let isGuest = localStorage.getItem('todo_guest') === '1';
 let tasks = [];
 let currentTaskId = null;
 let currentFilter = 'all';
@@ -22,7 +23,9 @@ async function login() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
     token = data.token;
+    isGuest = false;
     localStorage.setItem('todo_token', token);
+    localStorage.removeItem('todo_guest');
     showApp();
   } catch (e) {
     err.textContent = e.message || 'Incorrect PIN. Try again.';
@@ -32,10 +35,28 @@ async function login() {
   }
 }
 
+async function loginAsGuest() {
+  try {
+    const res = await fetch(`${API}/guest-auth`, { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    token = data.token;
+    isGuest = true;
+    localStorage.setItem('todo_token', token);
+    localStorage.setItem('todo_guest', '1');
+    showApp();
+  } catch (e) {
+    document.getElementById('login-error').textContent = 'Failed to start demo session.';
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
 function logout() {
   localStorage.removeItem('todo_token');
-  token = null; tasks = []; currentTaskId = null;
+  localStorage.removeItem('todo_guest');
+  token = null; isGuest = false; tasks = []; currentTaskId = null;
   document.getElementById('app').style.display = 'none';
+  document.getElementById('demo-banner').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('pin-input').value = '';
 }
@@ -43,6 +64,7 @@ function logout() {
 async function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
+  document.getElementById('demo-banner').style.display = isGuest ? 'flex' : 'none';
   await loadTasks();
 }
 
@@ -605,6 +627,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-login').addEventListener('click', login);
   document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
   document.getElementById('btn-logout').addEventListener('click', logout);
+  document.getElementById('btn-try-it').addEventListener('click', loginAsGuest);
+  document.getElementById('demo-banner-exit').addEventListener('click', logout);
 
   // New task
   document.getElementById('btn-new-task').addEventListener('click', openCreateModal);

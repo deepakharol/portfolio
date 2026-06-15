@@ -55,6 +55,7 @@
                     <li class="nav-item"><a href="#skills" class="nav-link">Skills</a></li>
                     <li class="nav-item"><a href="#projects" class="nav-link">Projects</a></li>
                     <li class="nav-item"><a href="#awards" class="nav-link">Awards</a></li>
+                    <li class="nav-item"><a href="#apps" class="nav-link">Apps</a></li>
                     <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
                 </ul>
             </div>
@@ -83,7 +84,7 @@
                         <span class="cursor">|</span>
                     </h2>
                     <p class="hero-description">
-                        Software Engineer with nearly 3 years of experience specializing in backend development,
+                        Senior Software Engineer with <span id="exp-counter" class="exp-counter">3 years</span> of experience specializing in backend development,
                         data security, and large-scale system optimization. Currently building innovative solutions at
                         CleverTap.
                     </p>
@@ -123,7 +124,7 @@
             <div class="about-content">
                 <div class="about-text" data-aos="fade-right">
                     <p>
-                        I'm a <strong>Senior Software Engineer</strong> with nearly 3 years of experience at
+                        I'm a <strong>Senior Software Engineer</strong> with <span id="exp-counter-about" class="exp-counter">3 years</span> of experience at
                         <strong>CleverTap</strong>,
                         one of the leading customer engagement platforms. My journey in tech has been driven by a
                         passion for
@@ -576,6 +577,59 @@
                     <i class="fas fa-chess"></i>
                     <h3>FIDE Rated Chess Player</h3>
                     <p>International Chess Tournament Player</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Personal Apps Section -->
+    <section id="apps" class="section apps">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">
+                <span class="title-number">07.</span> Personal Apps
+            </h2>
+            <p class="section-subtitle" data-aos="fade-up">Tools I built for myself — private, functional, and always evolving.</p>
+            <div class="apps-grid">
+                <div class="app-card" data-aos="fade-up">
+                    <div class="app-card-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="app-card-body">
+                        <div class="app-card-header">
+                            <h3>Task Planner</h3>
+                            <span class="app-badge app-badge-live">Live</span>
+                        </div>
+                        <p>A private, full-featured personal task manager with priorities, subtasks, inline tables, and file attachments. Built on Cloudflare Workers + D1 + R2.</p>
+                        <div class="app-tech-tags">
+                            <span>Cloudflare Workers</span>
+                            <span>D1 SQLite</span>
+                            <span>R2 Storage</span>
+                            <span>Vanilla JS</span>
+                        </div>
+                        <div class="app-card-actions">
+                            <a href="/apps/todo/" class="btn btn-primary btn-sm" target="_blank">
+                                <i class="fas fa-external-link-alt"></i> Open App
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-card app-card-coming-soon" data-aos="fade-up" data-aos-delay="100">
+                    <div class="app-card-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="app-card-body">
+                        <div class="app-card-header">
+                            <h3>Task Planner — Mobile</h3>
+                            <span class="app-badge app-badge-wip">Coming Soon</span>
+                        </div>
+                        <p>Native Flutter app for Android, iOS, iPad, and macOS — same API, different canvas. Seamless sync across all devices.</p>
+                        <div class="app-tech-tags">
+                            <span>Flutter</span>
+                            <span>Android</span>
+                            <span>iOS</span>
+                            <span>macOS</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

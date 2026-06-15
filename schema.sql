@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   priority TEXT DEFAULT 'P1',
   due_date TEXT DEFAULT (date('now')),
   status TEXT DEFAULT 'pending',
+  table_data TEXT DEFAULT '[]',
+  demo INTEGER DEFAULT 0,        -- 0 = owner task, 1 = shared guest/demo task
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );

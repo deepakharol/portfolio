@@ -22,11 +22,21 @@
       <i class="fas fa-unlock-alt"></i> Unlock
     </button>
     <div class="login-error" id="login-error">Incorrect PIN. Try again.</div>
+    <div class="login-divider"><span>or</span></div>
+    <button class="btn-try-it" id="btn-try-it">
+      <i class="fas fa-flask"></i> Try it out — no account needed
+    </button>
+    <p class="try-it-note">Shared demo sandbox · data visible to all guests · auto-deleted after 1 hour</p>
   </div>
 </div>
 
 <!-- Main App -->
 <div id="app">
+  <div class="demo-banner" id="demo-banner" style="display:none">
+    <i class="fas fa-flask"></i>
+    <span>You're in <strong>Demo Mode</strong> — tasks are shared with other visitors and deleted after 1 hour. Max 100 tasks.</span>
+    <button class="demo-banner-exit" id="demo-banner-exit">Exit Demo</button>
+  </div>
   <header class="app-header">
     <span class="logo">Task Planner</span>
     <div class="header-actions">
