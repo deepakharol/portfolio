@@ -951,7 +951,7 @@ img {
 
 .app-card-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.6rem;
     margin-bottom: 0.5rem;
 }
@@ -965,6 +965,8 @@ img {
     border-radius: 20px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
 }
 
 .app-badge-live { background: rgba(16,185,129,0.12); color: #059669; border: 1px solid rgba(16,185,129,0.3); }
