@@ -431,23 +431,57 @@ function isHeicFile(a) {
   return /heic|heif/i.test(a.content_type || '') || /\.(heic|heif)$/i.test(a.filename || '');
 }
 
+const _blobUrls = {};
+
+function revokeBlobUrl(id) {
+  if (_blobUrls[id]) { URL.revokeObjectURL(_blobUrls[id]); delete _blobUrls[id]; }
+}
+
+async function loadImageBlob(id) {
+  revokeBlobUrl(id);
+  const placeholder = document.getElementById(`img-placeholder-${id}`);
+  if (!placeholder) return;
+  try {
+    const res = await apiFetch(`/attachments/${id}`);
+    if (!res) throw new Error();
+    const blob = await res.blob();
+    // Auto-convert HEIC blobs (iOS uploads as HEIC even for regular image slots)
+    let finalBlob = blob;
+    if (/heic|heif/i.test(blob.type) || blob.type === '' ) {
+      try {
+        if (typeof heic2any !== 'undefined') {
+          const result = await heic2any({ blob, toType: 'image/jpeg', quality: 0.9 });
+          finalBlob = Array.isArray(result) ? result[0] : result;
+        }
+      } catch { /* not heic, use original blob */ }
+    }
+    const url = URL.createObjectURL(finalBlob);
+    _blobUrls[id] = url;
+    const img = document.createElement('img');
+    img.className = 'attachment-thumb';
+    img.style.cursor = 'pointer';
+    img.alt = '';
+    img.onclick = () => openLightbox(url);
+    img.onerror = () => placeholder.replaceWith(Object.assign(document.createElement('div'), { className: 'attachment-file-icon', innerHTML: '<i class="fas fa-image"></i><span>Image</span>' }));
+    img.src = url;
+    placeholder.replaceWith(img);
+  } catch {
+    placeholder.innerHTML = '<i class="fas fa-exclamation-circle" style="color:var(--danger)"></i>';
+  }
+}
+
 function renderAttachments(attachments) {
   const grid = document.getElementById('attachment-grid');
   if (!attachments.length) { grid.innerHTML = ''; return; }
   grid.innerHTML = attachments.map(a => {
-    const url = `/apps/todo/api/attachments/${a.id}`;
+    const apiUrl = `/apps/todo/api/attachments/${a.id}`;
     const heic = isHeicFile(a);
-    const isRegularImage = a.content_type?.startsWith('image/') && !heic;
+    const isImage = a.content_type?.startsWith('image/') || heic;
 
     let preview;
-    if (isRegularImage) {
-      preview = `<img class="attachment-thumb" src="${url}" alt="${esc(a.filename)}" onclick="openLightbox('${url}')" loading="lazy">`;
-    } else if (heic) {
-      preview = `<div class="attachment-heic-zone" id="heic-zone-${a.id}">
-        <i class="fas fa-image"></i>
-        <span>HEIC Photo</span>
-        <button class="btn-heic-preview" onclick="previewHeic('${a.id}')"><i class="fas fa-eye"></i> Preview</button>
-      </div>`;
+    if (isImage) {
+      // All images fetched via apiFetch to send auth token — no bare <img src> to API
+      preview = `<div class="attachment-heic-zone" id="img-placeholder-${a.id}"><i class="fas fa-spinner fa-spin"></i></div>`;
     } else {
       preview = `<div class="attachment-file-icon"><i class="${fileIcon(a.content_type)}"></i><span>${esc(fileExt(a.filename))}</span></div>`;
     }
@@ -457,30 +491,18 @@ function renderAttachments(attachments) {
       <div class="attachment-footer">
         <span class="attachment-name" title="${esc(a.filename)}">${esc(a.filename)}</span>
         <div class="attachment-actions">
-          <a class="btn-attach-action download" href="${url}?download=1" download="${esc(a.filename)}" title="Download"><i class="fas fa-download"></i></a>
+          <button class="btn-attach-action download" onclick="downloadAttachment('${a.id}','${esc(a.filename)}')" title="Download"><i class="fas fa-download"></i></button>
           <button class="btn-attach-action delete" onclick="deleteAttachment('${a.id}')" title="Remove"><i class="fas fa-trash"></i></button>
         </div>
       </div>
     </div>`;
   }).join('');
+
+  // Load all images authenticated via fetch → blob URL
+  attachments.filter(a => a.content_type?.startsWith('image/') || isHeicFile(a))
+    .forEach(a => loadImageBlob(a.id));
 }
 
-async function previewHeic(id) {
-  const zone = document.getElementById(`heic-zone-${id}`);
-  if (!zone) return;
-  zone.innerHTML = `<i class="fas fa-spinner fa-spin"></i><span>Converting…</span>`;
-  try {
-    const res = await apiFetch(`/attachments/${id}`);
-    if (!res) throw new Error('fetch failed');
-    const blob = await res.blob();
-    const result = await heic2any({ blob, toType: 'image/jpeg', quality: 0.9 });
-    const converted = Array.isArray(result) ? result[0] : result;
-    const objectUrl = URL.createObjectURL(converted);
-    zone.outerHTML = `<img class="attachment-thumb" src="${objectUrl}" onclick="openLightbox('${objectUrl}')" style="cursor:pointer">`;
-  } catch {
-    zone.innerHTML = `<i class="fas fa-exclamation-circle" style="color:var(--danger)"></i><span style="color:var(--danger);font-size:0.72rem">Preview failed</span>`;
-  }
-}
 
 async function uploadFiles(files) {
   if (!files.length || !currentTaskId) return;
@@ -499,6 +521,18 @@ async function uploadFiles(files) {
   renderAttachments(task.attachments || []);
   tasks = tasks.map(t => t.id === currentTaskId ? { ...t, attachment_count: task.attachments.length } : t);
   renderTaskList();
+}
+
+async function downloadAttachment(id, filename) {
+  try {
+    const res = await apiFetch(`/attachments/${id}`);
+    if (!res) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } catch { /* silent fail */ }
 }
 
 async function deleteAttachment(id) {
@@ -566,29 +600,50 @@ function initResizeHandle() {
 
   let startX, startWidth;
 
-  handle.addEventListener('mousedown', (e) => {
-    startX = e.clientX;
+  function startResize(clientX) {
+    startX = clientX;
     startWidth = parseInt(getComputedStyle(panel).width);
     handle.classList.add('dragging');
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
+  }
 
-    const onMove = (e) => {
-      const w = startWidth + (e.clientX - startX);
-      if (w >= 220 && w <= 560) panel.style.width = w + 'px';
-    };
+  function doResize(clientX) {
+    const w = startWidth + (clientX - startX);
+    if (w >= 220 && w <= 560) panel.style.width = w + 'px';
+  }
+
+  function endResize() {
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    localStorage.setItem('todo_panel_width', panel.style.width);
+  }
+
+  handle.addEventListener('mousedown', (e) => {
+    startResize(e.clientX);
+    const onMove = (e) => doResize(e.clientX);
     const onUp = () => {
-      handle.classList.remove('dragging');
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      localStorage.setItem('todo_panel_width', panel.style.width);
+      endResize();
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     };
-
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   });
+
+  handle.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    startResize(e.touches[0].clientX);
+    const onMove = (e) => { e.preventDefault(); doResize(e.touches[0].clientX); };
+    const onUp = () => {
+      endResize();
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
+    };
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onUp);
+  }, { passive: false });
 }
 
 // ===== Utils =====

@@ -17,7 +17,7 @@
     <div class="logo">DK</div>
     <h2>Task Planner</h2>
     <p>Enter your PIN to access your workspace</p>
-    <input type="password" class="pin-input" id="pin-input" placeholder="••••" maxlength="20" autocomplete="current-password">
+    <input type="password" class="pin-input" id="pin-input" placeholder="••••" maxlength="20" autocomplete="current-password" inputmode="numeric" pattern="[0-9]*">
     <button class="btn-login" id="btn-login">
       <i class="fas fa-unlock-alt"></i> Unlock
     </button>
@@ -148,7 +148,7 @@
             <div>Drag & drop files here or <strong>click to browse</strong></div>
             <div style="font-size:0.8rem;margin-top:0.3rem;">Max 50MB per file</div>
           </div>
-          <input type="file" id="file-input" multiple>
+          <input type="file" id="file-input" accept="image/*,video/*,.heic,.heif,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" multiple>
           <div class="upload-progress" id="upload-progress">
             <i class="fas fa-spinner fa-spin"></i> Uploading…
           </div>
@@ -192,7 +192,7 @@
         <i class="fas fa-paperclip"></i>
         <span>Click to attach files or drag & drop</span>
       </div>
-      <input type="file" id="new-file-input" multiple>
+      <input type="file" id="new-file-input" accept="image/*,video/*,.heic,.heif,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" multiple>
       <div id="new-file-list" class="new-file-list"></div>
     </div>
     <div class="modal-footer">

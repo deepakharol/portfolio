@@ -281,6 +281,13 @@ body {
     line-height: 1.5;
 }
 
+@media (max-width: 480px) {
+    .exp-counter {
+        white-space: normal;
+        font-size: 0.8em;
+    }
+}
+
 .hero-buttons {
     display: flex;
     gap: 1rem;

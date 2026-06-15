@@ -116,8 +116,7 @@ function initTypingEffect() {
     if (!typingText) return;
 
     const texts = [
-        'Senior Software Engineer',
-        'Backend Developer',
+        'Senior Backend Engineer',
         'Problem Solver',
         'Team Leader'
     ];
