@@ -265,11 +265,20 @@ body {
 }
 
 .exp-counter {
-    font-family: 'Courier New', monospace;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
     font-weight: 700;
-    font-size: 0.95em;
-    letter-spacing: 0.02em;
+    font-size: 0.88em;
+    letter-spacing: 0.03em;
     white-space: nowrap;
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 6px;
+    padding: 0.1em 0.55em 0.15em;
+    color: #fff;
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.18), inset 0 1px 0 rgba(255,255,255,0.2);
+    vertical-align: baseline;
+    line-height: 1.5;
 }
 
 .hero-buttons {
