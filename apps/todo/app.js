@@ -276,8 +276,10 @@ function renderTables() {
 }
 
 function renderTableHTML(t, ti) {
+  const colgroup = `<colgroup>${t.columns.map(() => '<col>').join('')}<col style="width:28px"></colgroup>`;
+
   const colDelCells = t.columns.map((_, ci) =>
-    `<td><button class="btn-del-col" onclick="deleteTableCol(${ti},${ci})" title="Delete column"><i class="fas fa-times"></i></button></td>`
+    `<td class="col-del-cell"><button class="btn-del-col" onclick="deleteTableCol(${ti},${ci})" title="Delete column"><i class="fas fa-times"></i></button></td>`
   ).join('');
 
   const headerCells = t.columns.map((col, ci) =>
@@ -288,9 +290,7 @@ function renderTableHTML(t, ti) {
     const cells = row.map((cell, ci) =>
       `<td><input value="${esc(cell)}" onchange="updateTableCell(${ti},${ri},${ci},this.value)" onblur="saveDetail()"></td>`
     ).join('');
-    return `<tr>${cells}<td style="border:none;width:24px;padding:0;">
-      <button class="btn-del-row" onclick="deleteTableRow(${ti},${ri})" title="Delete row"><i class="fas fa-times"></i></button>
-    </td></tr>`;
+    return `<tr>${cells}<td class="row-del-cell"><button class="btn-del-row" onclick="deleteTableRow(${ti},${ri})" title="Delete row"><i class="fas fa-times"></i></button></td></tr>`;
   }).join('');
 
   return `<div class="task-table-wrapper">
@@ -304,9 +304,10 @@ function renderTableHTML(t, ti) {
     </div>
     <div class="task-table-scroll">
       <table class="task-table">
+        ${colgroup}
         <thead>
-          <tr class="col-del-row">${colDelCells}<td style="border:none;width:24px"></td></tr>
-          <tr>${headerCells}<th style="border:none;width:24px"></th></tr>
+          <tr class="col-del-row">${colDelCells}<td class="row-del-cell"></td></tr>
+          <tr>${headerCells}<th class="row-del-cell"></th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
@@ -404,17 +405,33 @@ function initTablePicker() {
 
 // ===== Attachments =====
 
+function isHeicFile(a) {
+  return /heic|heif/i.test(a.content_type || '') || /\.(heic|heif)$/i.test(a.filename || '');
+}
+
 function renderAttachments(attachments) {
   const grid = document.getElementById('attachment-grid');
   if (!attachments.length) { grid.innerHTML = ''; return; }
   grid.innerHTML = attachments.map(a => {
-    const isImage = a.content_type?.startsWith('image/');
     const url = `/apps/todo/api/attachments/${a.id}`;
+    const heic = isHeicFile(a);
+    const isRegularImage = a.content_type?.startsWith('image/') && !heic;
+
+    let preview;
+    if (isRegularImage) {
+      preview = `<img class="attachment-thumb" src="${url}" alt="${esc(a.filename)}" onclick="openLightbox('${url}')" loading="lazy">`;
+    } else if (heic) {
+      preview = `<div class="attachment-heic-zone" id="heic-zone-${a.id}">
+        <i class="fas fa-image"></i>
+        <span>HEIC Photo</span>
+        <button class="btn-heic-preview" onclick="previewHeic('${a.id}')"><i class="fas fa-eye"></i> Preview</button>
+      </div>`;
+    } else {
+      preview = `<div class="attachment-file-icon"><i class="${fileIcon(a.content_type)}"></i><span>${esc(fileExt(a.filename))}</span></div>`;
+    }
+
     return `<div class="attachment-item">
-      ${isImage
-        ? `<img class="attachment-thumb" src="${url}" alt="${esc(a.filename)}" onclick="openLightbox('${url}')" loading="lazy">`
-        : `<div class="attachment-file-icon"><i class="${fileIcon(a.content_type)}"></i><span>${esc(fileExt(a.filename))}</span></div>`
-      }
+      ${preview}
       <div class="attachment-footer">
         <span class="attachment-name" title="${esc(a.filename)}">${esc(a.filename)}</span>
         <div class="attachment-actions">
@@ -424,6 +441,23 @@ function renderAttachments(attachments) {
       </div>
     </div>`;
   }).join('');
+}
+
+async function previewHeic(id) {
+  const zone = document.getElementById(`heic-zone-${id}`);
+  if (!zone) return;
+  zone.innerHTML = `<i class="fas fa-spinner fa-spin"></i><span>Converting…</span>`;
+  try {
+    const res = await apiFetch(`/attachments/${id}`);
+    if (!res) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const result = await heic2any({ blob, toType: 'image/jpeg', quality: 0.9 });
+    const converted = Array.isArray(result) ? result[0] : result;
+    const objectUrl = URL.createObjectURL(converted);
+    zone.outerHTML = `<img class="attachment-thumb" src="${objectUrl}" onclick="openLightbox('${objectUrl}')" style="cursor:pointer">`;
+  } catch {
+    zone.innerHTML = `<i class="fas fa-exclamation-circle" style="color:var(--danger)"></i><span style="color:var(--danger);font-size:0.72rem">Preview failed</span>`;
+  }
 }
 
 async function uploadFiles(files) {
@@ -458,7 +492,7 @@ async function deleteAttachment(id) {
 // ===== Lightbox =====
 
 function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src + '?t=' + Date.now();
+  document.getElementById('lightbox-img').src = src.startsWith('blob:') ? src : src + '?t=' + Date.now();
   document.getElementById('lightbox').classList.add('open');
 }
 function closeLightbox() {
