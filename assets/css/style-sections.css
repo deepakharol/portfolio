@@ -131,14 +131,17 @@
 
 /* ===== Experience Section ===== */
 .timeline {
+    --tl-line-x: 20px;
+    --tl-pad: 50px;
+    --tl-dot: 14px;
     position: relative;
-    padding-left: 50px;
+    padding-left: var(--tl-pad);
 }
 
 .timeline::before {
     content: '';
     position: absolute;
-    left: 20px;
+    left: var(--tl-line-x);
     top: 0;
     height: 100%;
     width: 2px;
@@ -153,12 +156,11 @@
 .timeline-item::before {
     content: '';
     position: absolute;
-    /* line center = left(20px) + half-width(1px) = 21px from .timeline left
-       dot center  = padding-left(50px) + left(-36px) + radius(7px) = 21px ✓ */
-    left: -36px;
+    /* dot center = tl-line-x + 1px (half of 2px line); expressed via calc so it stays correct at every breakpoint */
+    left: calc(var(--tl-line-x) + 1px - var(--tl-pad) - var(--tl-dot) / 2);
     top: 6px;
-    width: 14px;
-    height: 14px;
+    width: var(--tl-dot);
+    height: var(--tl-dot);
     border-radius: 50%;
     background: white;
     border: 3px solid var(--primary-color);
@@ -801,12 +803,7 @@
     }
 
     .timeline {
-        padding-left: 30px;
-    }
-
-    .timeline-item::before {
-        /* line center=21px, padding=30px, radius=7px → left = 21-30-7 = -16px */
-        left: -16px;
+        --tl-pad: 30px;
     }
 
     .education-grid,
@@ -841,14 +838,11 @@
     }
 
     .timeline {
-        padding-left: 25px;
+        --tl-pad: 25px;
+        --tl-dot: 10px;
     }
 
     .timeline-item::before {
-        /* line center=21px, padding=25px, radius=5px → left = 21-25-5 = -9px */
-        left: -9px;
-        width: 10px;
-        height: 10px;
         border-width: 2px;
     }
 
@@ -864,22 +858,7 @@ img {
 }
 
 /* ===== Additional Mobile Optimizations ===== */
-img {
-    max-width: 100%;
-    height: auto;
-}
-
 @media (max-width: 480px) {
-    .timeline {
-        padding-left: 25px;
-    }
-
-    .timeline-item::before {
-        left: -31px;
-        width: 10px;
-        height: 10px;
-    }
-
     .hero-title {
         font-size: 1.8rem;
     }
