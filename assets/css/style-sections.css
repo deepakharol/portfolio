@@ -153,14 +153,17 @@
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: -35px;
-    top: 0;
-    width: 12px;
-    height: 12px;
+    /* line center = left(20px) + half-width(1px) = 21px from .timeline left
+       dot center  = padding-left(50px) + left(-36px) + radius(7px) = 21px ✓ */
+    left: -36px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    background: var(--primary-color);
-    border: 3px solid white;
-    box-shadow: 0 0 0 3px var(--primary-color);
+    background: white;
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    z-index: 1;
 }
 
 .timeline-date {
@@ -802,7 +805,8 @@
     }
 
     .timeline-item::before {
-        left: -15px;
+        /* line center=21px, padding=30px, radius=7px → left = 21-30-7 = -16px */
+        left: -16px;
     }
 
     .education-grid,
@@ -841,11 +845,11 @@
     }
 
     .timeline-item::before {
+        /* line center=21px, padding=25px, radius=5px → left = 21-25-5 = -9px */
         left: -9px;
         width: 10px;
         height: 10px;
         border-width: 2px;
-        box-shadow: 0 0 0 2px var(--primary-color);
     }
 
     .btn {
