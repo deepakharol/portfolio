@@ -32,6 +32,7 @@ body {
     line-height: 1.6;
     background: var(--light-color);
     overflow-x: hidden;
+    counter-reset: section-num;
 }
 
 /* ===== Preloader ===== */

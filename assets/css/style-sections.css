@@ -14,12 +14,19 @@
     margin-bottom: 3rem;
     text-align: center;
     position: relative;
+    counter-increment: section-num;
 }
 
 .title-number {
     color: var(--primary-color);
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+/* Auto-generate number via CSS counter — empty the span content */
+.title-number::before {
+    content: counter(section-num, decimal-leading-zero) ".";
 }
 
 .section-title::after {
