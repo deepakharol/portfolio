@@ -55,7 +55,7 @@ async function loginAsGuest() {
     localStorage.setItem('todo_guest', '1');
     showApp();
   } catch (e) {
-    document.getElementById('login-error').textContent = 'Failed to start demo session.';
+    document.getElementById('login-error').textContent = e.message || 'Failed to start demo session.';
     document.getElementById('login-error').style.display = 'block';
     btn.disabled = false;
     btn.querySelector('strong').textContent = 'Try the Demo';
