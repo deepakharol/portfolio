@@ -198,7 +198,7 @@ html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; colo
 .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; cursor: pointer; transition: var(--transition); color: var(--text2); font-size: 0.9rem; }
 .upload-zone:hover, .upload-zone.drag-over { border-color: var(--primary); background: rgba(99,102,241,0.04); color: var(--primary); }
 .upload-zone i { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
-#file-input { display: none; }
+#file-input, #new-file-input { display: none; }
 
 .upload-zone-sm { padding: 0.75rem 1rem; font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem; flex-direction: row; justify-content: center; }
 .upload-zone-sm i { font-size: 1rem; margin: 0; display: inline; }

@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initTypingEffect();
     initScrollAnimations();
     initExperienceCounter();
+    initTimelineNow();
 
     // Dynamic footer year
     const yearEl = document.getElementById('footer-year');
@@ -427,6 +428,26 @@ function getProjectData(projectId) {
     };
 
     return projects[projectId] || { title: 'Project Details', content: '<p>Project information not available.</p>' };
+}
+
+// Live IST clock for the "Present" label in the experience timeline
+function initTimelineNow() {
+    const el = document.getElementById('timeline-now');
+    if (!el) return;
+    function update() {
+        const now = new Date();
+        // IST = UTC + 5:30
+        const ist = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        const day   = String(ist.getUTCDate()).padStart(2, '0');
+        const month = ist.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+        const year  = ist.getUTCFullYear();
+        const h     = String(ist.getUTCHours()).padStart(2, '0');
+        const m     = String(ist.getUTCMinutes()).padStart(2, '0');
+        const s     = String(ist.getUTCSeconds()).padStart(2, '0');
+        el.textContent = `${day} ${month} ${year}, ${h}:${m}:${s} IST`;
+    }
+    update();
+    setInterval(update, 1000);
 }
 
 // Live experience counter — start: July 4 2022, 9:00 AM IST (UTC+5:30 = 03:30 UTC)
