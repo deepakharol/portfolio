@@ -34,8 +34,29 @@ Single-page application in `index.html` with no framework or bundler.
 
 **OG image** at `assets/images/og-preview.png` is referenced in meta tags but not yet created — needs a 1200×630px screenshot of the site.
 
+## Sub-apps
+
+### Todo Planner (`/apps/todo`)
+
+Live at `deepakkharol.com/apps/todo`. Full docs in `docs/todo-planner/`.
+
+Stack: Cloudflare Pages Functions + D1 (SQLite) + R2 (file storage). PIN-based auth with JWT.
+
+**Before any change to the todo planner:**
+1. Read `docs/todo-planner/PRODUCT.md` — current feature behavior
+2. Read `docs/todo-planner/ARCHITECTURE.md` — file structure and patterns
+3. Read `docs/todo-planner/API.md` — existing endpoints
+4. Read `docs/todo-planner/DATA-MODEL.md` — DB schema
+
+**After any change:**
+- Update the affected doc(s) to reflect new behavior, fields, or endpoints
+
+## Coding Standards
+
+See `docs/CODING-STANDARDS.md` — covers SOLID principles, naming conventions, Worker rules, frontend rules, and CSS rules. Apply to all code in this repo.
+
 ## Planned work
 
-- Todo Planner app to be hosted as a sub-section/sub-path on `deepakkharol.com`
-- Requires backend API + database (stack TBD: Cloudflare Workers + D1, or Node + Postgres, or Supabase)
-- Auth needed so only the owner can access the planner
+- `api.deepakkharol.com` — subdomain alias for the todo planner API (for Flutter clients)
+- Flutter app — Android, iOS, iPad, macOS — same REST API as the web planner
+- OG image at `assets/images/og-preview.png` — needs a 1200×630px screenshot of the site
