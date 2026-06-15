@@ -51,10 +51,26 @@ async function loginAsGuest() {
   }
 }
 
+function clearDetailPanel() {
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+  currentTaskId = null;
+  tables = [];
+  // Revoke any cached blob URLs for images
+  Object.keys(_blobUrls).forEach(id => revokeBlobUrl(id));
+  document.getElementById('detail-content').style.display = 'none';
+  document.getElementById('detail-empty').style.display = 'flex';
+  document.getElementById('detail-title').value = '';
+  document.getElementById('detail-description').value = '';
+  document.getElementById('subtask-list').innerHTML = '';
+  document.getElementById('tables-container').innerHTML = '';
+  document.getElementById('attachment-grid').innerHTML = '';
+}
+
 function logout() {
   localStorage.removeItem('todo_token');
   localStorage.removeItem('todo_guest');
-  token = null; isGuest = false; tasks = []; currentTaskId = null;
+  token = null; isGuest = false; tasks = [];
+  clearDetailPanel();
   document.getElementById('app').style.display = 'none';
   document.getElementById('demo-banner').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
@@ -65,6 +81,8 @@ async function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   document.getElementById('demo-banner').style.display = isGuest ? 'flex' : 'none';
+  tasks = [];
+  clearDetailPanel();
   await loadTasks();
 }
 
@@ -91,6 +109,8 @@ async function apiJSON(path, options = {}) {
 // ===== Tasks =====
 
 async function loadTasks() {
+  const list = document.getElementById('task-list');
+  if (!tasks.length) list.innerHTML = '<div class="loading-tasks"><i class="fas fa-spinner fa-spin"></i></div>';
   const data = await apiJSON('/tasks');
   if (!data) return;
   tasks = data;
@@ -140,6 +160,14 @@ function renderTaskList() {
 async function selectTask(id) {
   currentTaskId = id;
   renderTaskList();
+  // Show skeleton immediately so the panel feels responsive
+  document.getElementById('detail-empty').style.display = 'none';
+  document.getElementById('detail-content').style.display = 'block';
+  document.getElementById('detail-title').value = '';
+  document.getElementById('detail-description').value = '';
+  document.getElementById('subtask-list').innerHTML = '<div class="loading-tasks"><i class="fas fa-spinner fa-spin"></i></div>';
+  document.getElementById('attachment-grid').innerHTML = '';
+  document.getElementById('tables-container').innerHTML = '';
   const res = await apiFetch(`/tasks/${id}`);
   if (!res) return;
   const task = await res.json();

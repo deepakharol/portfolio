@@ -105,6 +105,7 @@ html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; colo
 /* ===== Detail Panel ===== */
 .task-detail-panel { flex: 1; overflow-y: auto; background: var(--surface); display: flex; flex-direction: column; min-width: 0; }
 .detail-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text2); flex-direction: column; gap: 1rem; }
+.loading-tasks { display: flex; align-items: center; justify-content: center; padding: 2rem; color: var(--text2); font-size: 1.2rem; }
 .detail-empty i { font-size: 4rem; opacity: 0.3; }
 .detail-content { padding: 2rem 2.5rem; width: 100%; }
 
