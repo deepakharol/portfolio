@@ -23,10 +23,14 @@
     </button>
     <div class="login-error" id="login-error">Incorrect PIN. Try again.</div>
     <div class="login-divider"><span>or</span></div>
-    <button class="btn-try-it" id="btn-try-it">
-      <i class="fas fa-flask"></i> Try it out — no account needed
+    <button class="btn-guest" id="btn-try-it" onclick="loginAsGuest()">
+      <span class="btn-guest-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+      <span class="btn-guest-label">
+        <strong>Try the Demo</strong>
+        <small>No sign-up · Full features · 1-hour session</small>
+      </span>
+      <i class="fas fa-chevron-right btn-guest-arrow"></i>
     </button>
-    <p class="try-it-note">Shared demo sandbox · data visible to all guests · auto-deleted after 1 hour</p>
   </div>
 </div>
 
