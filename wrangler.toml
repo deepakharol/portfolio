@@ -6,7 +6,7 @@ pages_build_output_dir = "."
 [[d1_databases]]
 binding = "DB"
 database_name = "todo-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "ee9756dd-343d-4806-9c63-4756fa263f9e"
 
 [[r2_buckets]]
 binding = "ATTACHMENTS"
