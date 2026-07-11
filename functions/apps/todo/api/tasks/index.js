@@ -1,7 +1,10 @@
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' }
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'private, no-cache'
+    }
   });
 }
 
@@ -35,9 +38,11 @@ export async function onRequestGet({ env, data }) {
     FROM tasks t
     WHERE t.demo = ?
     ORDER BY
-      CASE priority WHEN 'P0' THEN 1 WHEN 'P1' THEN 2 WHEN 'P2' THEN 3 WHEN 'P3' THEN 4 ELSE 5 END,
-      due_date ASC,
-      created_at DESC
+      CASE WHEN t.sort_order IS NOT NULL THEN 0 ELSE 1 END,
+      t.sort_order ASC,
+      CASE t.priority WHEN 'P0' THEN 1 WHEN 'P1' THEN 2 WHEN 'P2' THEN 3 WHEN 'P3' THEN 4 ELSE 5 END,
+      t.due_date ASC,
+      t.created_at DESC
   `).bind(isGuest ? 1 : 0).all();
 
   return json(results);
@@ -47,7 +52,15 @@ export async function onRequestGet({ env, data }) {
 export async function onRequestPost({ request, env, data }) {
   const isGuest = data.isGuest;
   const body = await request.json();
-  const { title, description = '', priority = 'P1', due_date, status = 'pending', table_data = '[]' } = body;
+  const {
+    title,
+    description = '',
+    priority = 'P1',
+    due_date,
+    status = 'pending',
+    table_data = '[]',
+    category = 'personal'
+  } = body;
 
   if (!title?.trim()) return json({ error: 'Title is required' }, 400);
 
@@ -62,9 +75,9 @@ export async function onRequestPost({ request, env, data }) {
   const today = new Date().toISOString().split('T')[0];
 
   await env.DB.prepare(`
-    INSERT INTO tasks (id, title, description, priority, due_date, status, table_data, demo)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, title.trim(), description, priority, due_date || today, status, table_data, isGuest ? 1 : 0).run();
+    INSERT INTO tasks (id, title, description, priority, due_date, status, table_data, demo, category)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, title.trim(), description, priority, due_date || today, status, table_data, isGuest ? 1 : 0, category).run();
 
   const task = await env.DB.prepare('SELECT * FROM tasks WHERE id = ?').bind(id).first();
   return json(task, 201);

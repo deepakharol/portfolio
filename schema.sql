@@ -4,9 +4,11 @@ CREATE TABLE IF NOT EXISTS tasks (
   description TEXT DEFAULT '',
   priority TEXT DEFAULT 'P1',
   due_date TEXT DEFAULT (date('now')),
-  status TEXT DEFAULT 'pending',
+  status TEXT DEFAULT 'pending',          -- 'pending' | 'in_progress' | 'done' | 'blocked'
   table_data TEXT DEFAULT '[]',
-  demo INTEGER DEFAULT 0,        -- 0 = owner task, 1 = shared guest/demo task
+  demo INTEGER DEFAULT 0,                 -- 0 = owner task, 1 = shared guest/demo task
+  category TEXT DEFAULT 'personal',       -- 'personal' | 'office' | 'random'
+  sort_order INTEGER DEFAULT NULL,        -- NULL = use default priority/date sort; set by drag-reorder
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );

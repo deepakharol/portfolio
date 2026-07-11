@@ -1,14 +1,48 @@
 # Todo Planner — API Reference
 
-> Last updated: 2026-06-15
+> Last updated: 2026-07-11
 > Base URL: `https://deepakkharol.com/apps/todo/api`
 > Future alias: `https://api.deepakkharol.com` (planned)
 
-All routes except `POST /auth` require:
+All routes except `POST /auth`, `POST /guest-auth`, and `POST /google-auth` require:
 ```
 Authorization: Bearer <jwt>
 ```
 A 401 means the token is missing, invalid, or expired.
+
+---
+
+## POST /google-auth
+
+Sign in with Google. Verifies the Google ID token and, if the email matches the configured owner email, returns the same 30-day JWT as PIN login.
+
+**Request**
+```json
+{ "credential": "<google-id-token>" }
+```
+
+**Response 200**
+```json
+{ "token": "<jwt>" }
+```
+
+**Response 401**
+```json
+{ "error": "Unauthorized Google account" }
+```
+
+---
+
+## PATCH /tasks/reorder
+
+Batch-update `sort_order` for multiple tasks (called after drag-reorder in the UI).
+
+**Request**
+```json
+[{ "id": "uuid", "sort_order": 0 }, { "id": "uuid", "sort_order": 1 }]
+```
+
+**Response 200** `{ "success": true }`
 
 ---
 

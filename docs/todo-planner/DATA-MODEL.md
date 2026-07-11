@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   status      TEXT DEFAULT 'pending',                  -- 'pending' | 'in_progress' | 'done'
   table_data  TEXT DEFAULT '[]',                       -- JSON string — see Table JSON below
   demo        INTEGER DEFAULT 0,                       -- 0 = owner task, 1 = shared guest/demo task
+  category    TEXT DEFAULT 'personal',                 -- 'personal' | 'office' | 'random'
+  sort_order  INTEGER DEFAULT NULL,                    -- NULL = use priority/date sort; set by drag-reorder
   created_at  TEXT DEFAULT (datetime('now')),          -- ISO 8601 datetime
   updated_at  TEXT DEFAULT (datetime('now'))           -- updated on every PUT
 );
@@ -120,7 +122,8 @@ Default on create: `P1`
 |-------|---------|---------|
 | `pending` | ⏳ Pending | Default. Shown in all non-done filters. |
 | `in_progress` | 🔄 In Progress | Shown in all non-done filters. |
-| `done` | ✅ Done | Only shown in the "Done" filter tab. Hidden from Today/Overdue/P* tabs. |
+| `blocked` | 🚫 Blocked | Shown in the "Blocked" filter tab. Hidden from P*/Today/Done tabs. |
+| `done` | ✅ Done | Only shown in the "Done" filter tab. Hidden from Today/Overdue/P*/Blocked tabs. |
 
 ---
 

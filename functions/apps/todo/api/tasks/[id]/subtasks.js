@@ -25,15 +25,17 @@ export async function onRequestPost({ params, request, env }) {
   return json(subtask, 201);
 }
 
-// PUT /apps/todo/api/tasks/:id/subtasks — batch update (reorder, toggle, edit)
+// PUT /apps/todo/api/tasks/:id/subtasks — batch upsert (reorder, toggle, edit, new from split)
+// Accepts new subtask IDs that don't exist yet (created client-side during Enter-split).
 export async function onRequestPut({ params, request, env }) {
   const subtasks = await request.json(); // array of { id, content, completed, order_index }
   if (!Array.isArray(subtasks)) return json({ error: 'Expected array' }, 400);
 
+  // Use INSERT OR REPLACE so new subtask IDs from Enter-split are created, existing ones updated.
   const stmts = subtasks.map(s =>
     env.DB.prepare(
-      'UPDATE subtasks SET content = ?, completed = ?, order_index = ? WHERE id = ? AND task_id = ?'
-    ).bind(s.content, s.completed ? 1 : 0, s.order_index, s.id, params.id)
+      'INSERT OR REPLACE INTO subtasks (id, task_id, content, completed, order_index) VALUES (?, ?, ?, ?, ?)'
+    ).bind(s.id, params.id, s.content, s.completed ? 1 : 0, s.order_index)
   );
 
   if (stmts.length) await env.DB.batch(stmts);

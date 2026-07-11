@@ -11,7 +11,11 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
 
   // Auth endpoints pass through without a token check
-  if (url.pathname.endsWith('/api/auth') || url.pathname.endsWith('/api/guest-auth')) {
+  if (
+    url.pathname.endsWith('/api/auth') ||
+    url.pathname.endsWith('/api/guest-auth') ||
+    url.pathname.endsWith('/api/google-auth')
+  ) {
     return context.next();
   }
 

@@ -1,7 +1,10 @@
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' }
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'private, no-cache'
+    }
   });
 }
 
@@ -35,7 +38,7 @@ export async function onRequestPut({ params, request, env, data }) {
   if (!task) return json({ error: 'Not found' }, 404);
 
   const body = await request.json();
-  const fields = ['title', 'description', 'priority', 'due_date', 'status', 'table_data'];
+  const fields = ['title', 'description', 'priority', 'due_date', 'status', 'table_data', 'category', 'sort_order'];
   const updates = [];
   const values = [];
 
