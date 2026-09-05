@@ -28,7 +28,7 @@ Single-page application in `index.html` with no framework or bundler.
 
 **Project modals** load static HTML content from a `getProjectData(projectId)` map inside `main.js` — no network call, no separate data file.
 
-**Contact form** POSTs to `https://formsubmit.co/dkharol48@gmail.com` via fetch, shows an in-page success message on completion instead of redirecting.
+**Contact form** POSTs to `https://formsubmit.co/contact@deepakkharol.com` via fetch, shows an in-page success message on completion instead of redirecting.
 
 **Sections and their nav anchors:** `#home`, `#about`, `#experience`, `#education`, `#skills`, `#projects`, `#awards`, `#contact`
 
