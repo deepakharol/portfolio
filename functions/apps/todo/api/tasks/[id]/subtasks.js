@@ -5,8 +5,18 @@ function json(data, status = 200) {
   });
 }
 
+// Confirm the parent task exists AND belongs to the caller's scope (owner vs demo).
+// Without this, a guest could mutate an owner task's subtasks by guessing its id.
+async function ownsTask(env, taskId, isGuest) {
+  const row = await env.DB.prepare(
+    'SELECT id FROM tasks WHERE id = ? AND demo = ?'
+  ).bind(taskId, isGuest ? 1 : 0).first();
+  return !!row;
+}
+
 // POST /apps/todo/api/tasks/:id/subtasks — add a single subtask
-export async function onRequestPost({ params, request, env }) {
+export async function onRequestPost({ params, request, env, data }) {
+  if (!(await ownsTask(env, params.id, data.isGuest))) return json({ error: 'Not found' }, 404);
   const { content } = await request.json();
   if (!content?.trim()) return json({ error: 'Content required' }, 400);
 
@@ -27,7 +37,8 @@ export async function onRequestPost({ params, request, env }) {
 
 // PUT /apps/todo/api/tasks/:id/subtasks — batch upsert (reorder, toggle, edit, new from split)
 // Accepts new subtask IDs that don't exist yet (created client-side during Enter-split).
-export async function onRequestPut({ params, request, env }) {
+export async function onRequestPut({ params, request, env, data }) {
+  if (!(await ownsTask(env, params.id, data.isGuest))) return json({ error: 'Not found' }, 404);
   const subtasks = await request.json(); // array of { id, content, completed, order_index }
   if (!Array.isArray(subtasks)) return json({ error: 'Expected array' }, 400);
 
@@ -48,7 +59,8 @@ export async function onRequestPut({ params, request, env }) {
 }
 
 // DELETE /apps/todo/api/tasks/:id/subtasks — delete a subtask by id in body
-export async function onRequestDelete({ params, request, env }) {
+export async function onRequestDelete({ params, request, env, data }) {
+  if (!(await ownsTask(env, params.id, data.isGuest))) return json({ error: 'Not found' }, 404);
   const { id } = await request.json();
   if (!id) return json({ error: 'Subtask id required' }, 400);
 

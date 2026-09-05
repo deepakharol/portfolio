@@ -1,6 +1,6 @@
 # Todo Planner — Product Behavior
 
-> Last updated: 2026-06-15
+> Last updated: 2026-06-16
 > Path: `/apps/todo` → `deepakkharol.com/apps/todo`
 
 ## Purpose
@@ -20,6 +20,14 @@ A private personal task planner accessible only to the owner (Deepak). No public
 - Logout: clears `localStorage`, returns to PIN screen
 - On any 401 from the API: auto-logout
 
+### Owner (Google Sign-In)
+- "Continue with Google" button on the login screen, backed by Google Identity Services (GIS)
+- Clicking it opens the native Google account prompt (`google.accounts.id.prompt()`)
+- The returned Google ID token is POSTed to `/api/google-auth`; the Worker verifies the RS256 signature against Google's public JWKS and checks `aud`/`iss`/`exp`/`email_verified`
+- Only the configured owner email (`OWNER_EMAIL` secret) is accepted — any other Google account is rejected with 401
+- On success: receives the same 30-day owner JWT as PIN login (fully interchangeable)
+- No account creation, no multi-user data — this is an alternate way for the owner to sign in, not a public login
+
 ### Guest / Demo Mode
 - "Try it out" button on the login screen — no PIN needed
 - Calls `POST /api/guest-auth`, receives a 1-hour guest JWT
@@ -36,23 +44,57 @@ A private personal task planner accessible only to the owner (Deepak). No public
 
 ## Task List Panel (Left)
 
-- Lists all tasks sorted by: **priority (P0 first) → due date → created date**
-- Each task card shows: title, priority badge, due date label (Today/Tomorrow/DD Mon), subtask progress (`done/total`), attachment count
+- Lists tasks sorted by: **manual `sort_order` (if set) → priority (P0 first) → due date → created date**
+- Each task card shows: a done checkbox, title, status badge (for in-progress/blocked/done), priority badge, due date label (Today/Tomorrow/DD Mon), subtask progress (`done/total`), attachment count
 - Overdue tasks (due date < today, status ≠ done) highlighted in red
 - Clicking a card opens the task in the detail panel and marks it selected
+
+### Category Tabs (top of the panel)
+
+Tasks are split into three categories, shown as tabs above the filter bar:
+
+| Tab | Category value |
+|-----|----------------|
+| 👤 Personal | `personal` (default) |
+| 💼 Office | `office` |
+| 🎲 Random | `random` |
+
+- Only tasks in the active category are shown; category is applied **before** the filter tab
+- The active category also becomes the default category for a new task created while it's selected
+
+### Done Checkbox (on each card)
+
+- A checkbox on the left of each card toggles the task between `done` and `pending` without opening it
+- Optimistic: the card updates and re-filters instantly, then `PUT /tasks/:id` persists in the background
+- Un-checking a done task returns it to `pending`
+- Clicking the checkbox does not select/open the card (click propagation is stopped)
+
+### Drag-to-Reorder
+
+- Task cards can be dragged to set a manual order, persisted via `PATCH /tasks/reorder` (writes `sort_order`)
+- **Only enabled in the "All" filter.** Cards are not draggable in Today/Overdue/P*/Blocked/Done, because reordering a partial view would assign `sort_order` to only some tasks and, since `sort_order` sorts first, they'd jump above higher-priority tasks in the full list
+- Reorder is scoped to the current category and the caller's demo/owner scope
 
 ### Filter Tabs
 
 | Tab | Shows |
 |-----|-------|
-| All | Every task |
+| All | Every task in the category (drag-reorder enabled here) |
 | Today | Non-done tasks due today |
 | Overdue | Non-done tasks with past due date |
 | P0 | Non-done P0 tasks |
 | P1 | Non-done P1 tasks |
 | P2 | Non-done P2 tasks |
 | P3 | Non-done P3 tasks |
+| 🚫 Blocked | Tasks with status `blocked` |
 | Done | Completed tasks |
+
+### View Toggle (List / Calendar)
+
+Buttons on the right of the filter bar switch between two views of the same (category- and filter-scoped) tasks:
+
+- **List view** (default) — the task cards described above
+- **Calendar view** — a month grid; see *Calendar View* below
 
 ### Resize Handle
 
@@ -69,6 +111,7 @@ Triggered by "+ New Task" button in the header.
 **Fields:**
 - Title (required)
 - Priority: P0 Urgent | P1 High (default) | P2 Medium | P3 Low
+- Category: Personal | Office | Random (defaults to the active category tab)
 - Due Date (default: today)
 - Description (optional)
 - File Attachments (optional — queued as `pendingFiles`, uploaded after task is created)
@@ -91,8 +134,16 @@ Opens when a task card is selected. All fields auto-save 800ms after the last ch
 | Title | text input | Required |
 | Priority | select | P0/P1/P2/P3 — badge color updates live |
 | Due Date | date picker | |
-| Status | select | Pending / In Progress / Done |
-| Description | textarea | Free-form text |
+| Status | select | Pending / In Progress / Blocked / Done |
+| Category | select | Personal / Office / Random — moves the task between category tabs |
+| Description | textarea + preview | See *Description with clickable links* below |
+
+### Description with clickable links
+
+- The description has two modes: an editable `<textarea>` and a read-only linkified preview
+- On load and on blur, any `http(s)://` URLs in the text render as clickable links (open in a new tab, `rel="noopener noreferrer"`)
+- Clicking anywhere in the preview that is **not** a link switches back to the editable textarea
+- Linkification is XSS-safe: the raw text is HTML-escaped first, then URLs are wrapped
 
 ### Subtasks
 
@@ -102,6 +153,7 @@ Opens when a task card is selected. All fields auto-save 800ms after the last ch
 - Checking off grays out text with strikethrough
 - Subtask count badge on the task card updates immediately
 - Deleting text from a subtask and blurring removes it
+- **Enter in the middle of a subtask splits it:** text before the cursor stays in the current subtask, text after the cursor becomes a new subtask inserted directly below, and the cursor moves to the start of the new one (focus is preserved — the subtask list is not re-rendered on the split)
 
 ### Tables
 
@@ -138,6 +190,19 @@ Opens when a task card is selected. All fields auto-save 800ms after the last ch
 
 ---
 
+## Calendar View
+
+Toggled from the view buttons in the filter bar.
+
+- Month grid (7 columns, Sun–Sat), previous/next month navigation, and a "Today" button that jumps back to the current month
+- Today's cell is highlighted
+- Each day cell shows chips for its non-done tasks due that date, colored by priority
+- A cell shows at most 3 chips; extras collapse into a "+N more" label
+- Clicking a chip opens that task in the detail panel
+- Respects the active category tab and filter tab (same task set as the list view)
+
+---
+
 ## Priority System
 
 | Priority | Label | Color | Use when |
@@ -146,6 +211,15 @@ Opens when a task card is selected. All fields auto-save 800ms after the last ch
 | P1 | High | Orange `#ea580c` | Important, do today (default) |
 | P2 | Medium | Blue `#2563eb` | Do this week |
 | P3 | Low | Gray `#6b7280` | Nice to have |
+
+## Status System
+
+| Status | Label | On the card | In filters |
+|--------|-------|-------------|-----------|
+| `pending` | ⏳ Pending | no badge | shown in all non-done filters |
+| `in_progress` | 🔄 In Progress | spinning badge | shown in all non-done filters |
+| `blocked` | 🚫 Blocked | ban badge | only in the Blocked tab |
+| `done` | ✅ Done | check badge + strikethrough | only in the Done tab |
 
 ---
 

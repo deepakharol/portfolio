@@ -1,6 +1,6 @@
 # Todo Planner — API Reference
 
-> Last updated: 2026-07-11
+> Last updated: 2026-06-16
 > Base URL: `https://deepakkharol.com/apps/todo/api`
 > Future alias: `https://api.deepakkharol.com` (planned)
 
@@ -35,7 +35,7 @@ Sign in with Google. Verifies the Google ID token and, if the email matches the 
 
 ## PATCH /tasks/reorder
 
-Batch-update `sort_order` for multiple tasks (called after drag-reorder in the UI).
+Batch-update `sort_order` for multiple tasks (called after drag-reorder in the UI, which only happens in the "All" filter). Each `UPDATE` is scoped to the caller's `demo` flag, so a guest can never reorder owner tasks.
 
 **Request**
 ```json
@@ -43,6 +43,8 @@ Batch-update `sort_order` for multiple tasks (called after drag-reorder in the U
 ```
 
 **Response 200** `{ "success": true }`
+
+**Response 400** `{ "error": "Expected non-empty array" }`
 
 ---
 
@@ -86,7 +88,7 @@ JWT payload: `{ sub: "owner", iat: <unix>, exp: <unix+30d> }`
 
 ## GET /tasks
 
-List all tasks, sorted by priority (P0→P3) then due date then created date.
+List all tasks for the caller's scope (`demo = 0` owner, `demo = 1` guest), sorted by `sort_order` (non-null first) → priority (P0→P3) → due date → created date. Guest calls also lazily purge demo tasks older than 1 hour (and their R2 files) first.
 
 **Response 200**
 ```json
@@ -97,7 +99,9 @@ List all tasks, sorted by priority (P0→P3) then due date then created date.
     "description": "string",
     "priority": "P0|P1|P2|P3",
     "due_date": "YYYY-MM-DD",
-    "status": "pending|in_progress|done",
+    "status": "pending|in_progress|blocked|done",
+    "category": "personal|office|random",
+    "sort_order": 0,
     "table_data": "[...]",
     "created_at": "datetime",
     "updated_at": "datetime",
@@ -107,6 +111,8 @@ List all tasks, sorted by priority (P0→P3) then due date then created date.
   }
 ]
 ```
+
+`sort_order` is `null` for tasks that have never been drag-reordered.
 
 ---
 
@@ -120,8 +126,9 @@ Create a new task.
   "title": "string (required)",
   "description": "string (optional, default '')",
   "priority": "P0|P1|P2|P3 (optional, default 'P1')",
+  "category": "personal|office|random (optional, default 'personal')",
   "due_date": "YYYY-MM-DD (optional, default today)",
-  "status": "pending|in_progress|done (optional, default 'pending')",
+  "status": "pending|in_progress|blocked|done (optional, default 'pending')",
   "table_data": "JSON string (optional, default '[]')"
 }
 ```
@@ -132,6 +139,8 @@ Create a new task.
 ```json
 { "error": "Title is required" }
 ```
+
+**Response 429** (guest only) `{ "error": "Demo sandbox is full (max 100 tasks)…" }`
 
 ---
 
@@ -170,19 +179,21 @@ Note: `r2_key` is intentionally excluded from attachments in the response.
 
 Update one or more fields on a task. Send only the fields you want to change.
 
-**Request** (all fields optional)
+**Request** (all fields optional — send only what changes)
 ```json
 {
   "title": "string",
   "description": "string",
   "priority": "P0|P1|P2|P3",
+  "category": "personal|office|random",
   "due_date": "YYYY-MM-DD",
-  "status": "pending|in_progress|done",
+  "status": "pending|in_progress|blocked|done",
+  "sort_order": 0,
   "table_data": "JSON string"
 }
 ```
 
-`updated_at` is set automatically to `datetime('now')`.
+Recognized fields: `title, description, priority, due_date, status, table_data, category, sort_order`. `updated_at` is set automatically to `datetime('now')`.
 
 **Response 200** — updated task object (flat fields, no subtasks/attachments)
 
@@ -207,9 +218,11 @@ Delete a task and all its data.
 
 ---
 
+> All three subtask endpoints first verify the parent task `:id` exists **and** belongs to the caller's scope (`demo` match). If not, they return **404 `{ "error": "Not found" }`** — this prevents a guest from mutating owner subtasks by guessing a task id.
+
 ## POST /tasks/:id/subtasks
 
-Add a subtask.
+Add a subtask. `order_index` is assigned as `MAX(order_index) + 1` for the task.
 
 **Request**
 ```json
@@ -221,11 +234,13 @@ Add a subtask.
 { "id": "uuid", "task_id": "uuid", "content": "string", "completed": 0, "order_index": 0 }
 ```
 
+**Response 404** `{ "error": "Not found" }` (task not in caller's scope)
+
 ---
 
 ## PUT /tasks/:id/subtasks
 
-Batch update all subtasks (reorder, edit text, toggle complete).
+Batch upsert all subtasks (reorder, edit text, toggle complete, and create new ones). Uses `INSERT OR REPLACE`, so client-generated IDs from the Enter-split feature are created here.
 
 **Request** — full array of all subtasks in desired order
 ```json
@@ -235,7 +250,14 @@ Batch update all subtasks (reorder, edit text, toggle complete).
 ]
 ```
 
-**Response 200** `{ "success": true }`
+**Response 200** — the full, re-sorted subtask array for the task
+```json
+[
+  { "id": "uuid", "task_id": "uuid", "content": "string", "completed": 0, "order_index": 0 }
+]
+```
+
+**Response 404** `{ "error": "Not found" }` (task not in caller's scope)
 
 ---
 
@@ -249,6 +271,8 @@ Delete a single subtask by id.
 ```
 
 **Response 200** `{ "success": true }`
+
+**Response 404** `{ "error": "Not found" }` (task not in caller's scope)
 
 ---
 
@@ -313,6 +337,7 @@ Delete an attachment from both R2 and D1.
 | 201 | Created |
 | 400 | Bad request / validation error |
 | 401 | Missing or invalid JWT |
-| 404 | Resource not found |
+| 404 | Resource not found / not in caller's scope |
 | 413 | File too large |
+| 429 | Demo sandbox full (guest task limit) |
 | 500 | Unhandled server error |

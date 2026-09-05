@@ -1,6 +1,6 @@
 # Todo Planner — Architecture
 
-> Last updated: 2026-06-15
+> Last updated: 2026-06-16
 
 ## Stack
 
@@ -10,7 +10,7 @@
 | API | Cloudflare Pages Functions | Runs on same deploy pipeline as portfolio |
 | Database | Cloudflare D1 (SQLite) | Free, edge-native, no connection pooling issues |
 | File storage | Cloudflare R2 | 10GB free, S3-compatible, same Cloudflare account |
-| Auth | PIN → HMAC-SHA256 JWT | No OAuth, no external service, owner-only |
+| Auth | PIN or Google Sign-In → HMAC-SHA256 JWT | Owner-only; both paths mint the same app JWT |
 | Deploy | `git push origin main` | Cloudflare Pages auto-deploys |
 
 ---
@@ -29,13 +29,16 @@ functions/
     todo/
       api/
         _jwt.js         ← JWT sign/verify (Web Crypto API, no external deps)
-        _middleware.js  ← Auth guard — runs before all routes, passes /auth through
+        _middleware.js  ← Auth guard — runs before all routes, passes the auth endpoints through
         auth.js         ← POST /auth — validates PIN, returns signed JWT
+        guest-auth.js   ← POST /guest-auth — issues a 1-hour guest JWT (demo mode)
+        google-auth.js  ← POST /google-auth — verifies a Google ID token (RS256 via JWKS), owner-email gated
         tasks/
           index.js      ← GET (list) / POST (create)
+          reorder.js    ← PATCH — batch-write sort_order after drag-reorder
           [id].js       ← GET / PUT / DELETE a single task
           [id]/
-            subtasks.js ← POST / PUT (batch) / DELETE subtasks
+            subtasks.js ← POST / PUT (batch) / DELETE subtasks (parent-task scope enforced)
         attachments/
           index.js      ← POST upload to R2
           [id].js       ← GET stream from R2 / DELETE
@@ -77,22 +80,32 @@ Browser (protected API call)
 
 ## Auth Flow
 
+Three entry points, all converging on the same app JWT:
+
 ```
-User enters PIN
+PIN login
   → POST /api/auth { pin }
   → Worker: SHA-256(pin) vs env.PIN_HASH
-  → Match: sign JWT { sub: "owner", iat, exp } with env.JWT_SECRET (HMAC-SHA256)
-  → Return { token }
-  → Frontend: localStorage.setItem('todo_token', token)
+  → Match: sign owner JWT { sub: "owner", iat, exp } with env.JWT_SECRET (HMAC-SHA256)
+
+Google Sign-In
+  → GIS returns a Google ID token → POST /api/google-auth { credential }
+  → Worker fetches Google JWKS, verifies RS256 signature + aud/iss/exp/email_verified
+  → email === env.OWNER_EMAIL → sign the SAME owner JWT
+
+Guest / Demo
+  → POST /api/guest-auth (no credentials)
+  → sign guest JWT { sub: "guest", role: "guest", exp: now+1h }
 
 Every subsequent request:
   → Authorization: Bearer <token>
-  → _middleware.js verifies signature + expiry
-  → Passes ctx.data.user = payload to route handler
+  → _middleware.js verifies signature + expiry, then sets context.data.isGuest = (payload.role === 'guest')
   → 401 if invalid/expired → frontend auto-logs out
 ```
 
-**Secrets (set in Cloudflare Dashboard → Pages project → Settings → Environment Variables, type: Secret):**
+Route handlers read `data.isGuest` to scope every query to `demo = 0` (owner) or `demo = 1` (guest).
+
+**Secrets (set in Cloudflare Dashboard → Pages project → Settings → Variables and Secrets):**
 - `PIN_HASH` — SHA-256 hex of your chosen PIN. Generate with:
   ```bash
   echo -n "YOUR_PIN_HERE" | shasum -a 256 | awk '{print $1}'
@@ -102,6 +115,8 @@ Every subsequent request:
   ```bash
   openssl rand -hex 32
   ```
+- `GOOGLE_CLIENT_ID` — the OAuth client ID for Google Sign-In (also hardcoded in `index.html`'s `g_id_onload` for the button). Authorized origins must include `https://deepakkharol.com` and the local dev origin.
+- `OWNER_EMAIL` — the single Google account email allowed to sign in (e.g. the owner's Gmail). Any other verified Google account is rejected.
 
 **To change your PIN:**
 1. Run the shasum command above with your new PIN
@@ -119,20 +134,30 @@ Every subsequent request:
 `app.js` is a single module with no framework. State is:
 
 ```js
-let token         // JWT from localStorage
-let tasks         // full task list (loaded on login, reloaded after mutations)
-let currentTaskId // selected task ID
-let currentFilter // active filter tab
-let saveTimer     // debounce handle for auto-save
-let pendingFiles  // files queued in create modal before task exists
-let tables        // parsed table_data array for the current task
+let token           // JWT from localStorage
+let isGuest         // true when signed in via guest/demo
+let tasks           // full task list (loaded on login, kept in sync in-memory after mutations)
+let currentTaskId   // selected task ID
+let currentFilter   // active filter tab
+let currentCategory // active category tab ('personal' | 'office' | 'random')
+let viewMode        // 'list' | 'calendar'
+let calYear, calMonth // month shown in the calendar view
+let saveTimer       // debounce handle for auto-save
+let pendingFiles    // files queued in create modal before task exists
+let tables          // parsed table_data array for the current task
+const taskCache     // Map id → { task, ts } — short-lived detail cache (30s TTL)
 ```
 
 **Data flow:**
-1. Login → `loadTasks()` → sets `tasks`, calls `renderTaskList()`
-2. `selectTask(id)` → `GET /tasks/:id` → `renderDetailPanel(task)` (sets `tables` from `task.table_data`)
+1. Login → `loadTasks()` → sets `tasks`, calls `renderTaskList()` + `renderCalendar()`
+2. `selectTask(id)` → serves from `taskCache` if fresh (< 30s), else `GET /tasks/:id` → `renderDetailPanel(task)` (sets `tables` from `task.table_data`)
 3. Any detail field change → `scheduleDetailSave()` → debounce → `saveDetail()` → `PUT /tasks/:id`
 4. `saveDetail()` always serializes `JSON.stringify(tables)` into the body
+
+**Performance model (no reload-the-world):**
+- Mutations update the in-memory `tasks` array and re-render locally instead of re-fetching the whole list. `loadTasks()` runs on login and after create only.
+- Any mutation that changes a task's detail must invalidate its `taskCache` entry (`taskCache.delete(id)`), or a re-select within the TTL would show stale data.
+- Card done-toggle, drag-reorder, and subtask-split apply optimistically, then persist in the background.
 
 ---
 

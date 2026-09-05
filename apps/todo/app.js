@@ -202,7 +202,10 @@ function renderTaskList() {
     const el = document.createElement('div');
     el.className = cls;
     el.dataset.id = t.id;
-    el.draggable = true;
+    // Feature 1: manual reorder only in the unfiltered "all" view. Dragging inside
+    // a sub-filter would assign sort_order to just those tasks, and since GET /tasks
+    // sorts sort_order-first, they'd then jump above higher-priority tasks in "all".
+    el.draggable = currentFilter === 'all';
     el.innerHTML = `
       <div class="task-card-top">
         <label class="task-done-check" title="Mark done" onclick="event.stopPropagation()">
@@ -281,8 +284,11 @@ async function onDrop(e) {
   const target = e.currentTarget;
   target.classList.remove('drag-over');
   if (!dragSrcId || target.dataset.id === dragSrcId) return;
+  if (currentFilter !== 'all') return;   // reorder only in the unfiltered view
 
-  // Reorder the visible tasks list in memory
+  // Reorder the visible tasks list in memory. In "all", every task of the current
+  // category is visible, so sort_order is assigned across the full set — no partial
+  // ordering that could outrank un-reordered tasks.
   const visible = filteredTasks();
   const srcIdx  = visible.findIndex(t => t.id === dragSrcId);
   const dstIdx  = visible.findIndex(t => t.id === target.dataset.id);
@@ -433,13 +439,7 @@ async function deleteTask() {
 // URL regex that matches http/https URLs
 const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
 
-function linkify(text) {
-  return esc(text).replace(URL_REGEX.source, url =>
-    `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
-  );
-}
-
-// Proper linkify on raw text (escape first, then linkify)
+// Linkify raw text safely: escape HTML first, then wrap URLs in anchors.
 function linkifyText(raw) {
   const escaped = String(raw || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   return escaped.replace(URL_REGEX, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
@@ -551,12 +551,18 @@ async function subtaskKeydown(e, id) {
     body: JSON.stringify(merged)
   });
 
-  // Focus the new input
+  // Update task card counts locally — do NOT re-render subtasks, or the new
+  // input loses focus (refreshSubtasks would rebuild #subtask-list).
+  const doneCount = merged.filter(s => s.completed).length;
+  tasks = tasks.map(t => t.id === currentTaskId
+    ? { ...t, subtask_count: merged.length, subtask_done: doneCount }
+    : t);
+  taskCache.delete(currentTaskId);
+  renderTaskList();   // left panel only — leaves subtask DOM (and focus) intact
+
+  // Focus the new input, cursor at the start of the moved text
   const newInput = document.querySelector(`.subtask-text[data-id="${newId}"]`);
   if (newInput) { newInput.focus(); newInput.setSelectionRange(0, 0); }
-
-  // Update task card subtask counts
-  await refreshSubtasks();
 }
 
 async function batchUpdateSubtasks() {
@@ -577,6 +583,7 @@ async function batchUpdateSubtasks() {
   tasks = tasks.map(t => t.id === currentTaskId
     ? { ...t, subtask_count: subtasks.length, subtask_done: done }
     : t);
+  taskCache.delete(currentTaskId);   // cache holds stale subtasks otherwise
   renderTaskList();
 }
 
