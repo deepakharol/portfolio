@@ -475,7 +475,8 @@ function initExperienceCounter() {
         document.getElementById('exp-counter'),
         document.getElementById('exp-counter-about')
     ].filter(Boolean);
-    if (!els.length) return;
+    const yearsEl = document.getElementById('exp-years');
+    if (!els.length && !yearsEl) return;
 
     function update() {
         const now = new Date();
@@ -516,6 +517,9 @@ function initExperienceCounter() {
 
         const text = `${years}y ${months}mo ${days}d ${hours}h ${mins}m ${secs}s`;
         els.forEach(el => el.textContent = text);
+
+        // Keep the "N+ Years" highlight card in step with the live counter
+        if (yearsEl) yearsEl.textContent = `${years}+ Years`;
     }
 
     update();

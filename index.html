@@ -87,9 +87,9 @@
                         <span class="cursor">|</span>
                     </h2>
                     <p class="hero-description">
-                        Senior Software Engineer with <span id="exp-counter" class="exp-counter">3 years</span> of experience specializing in backend development,
-                        data security, and large-scale system optimization. Currently building innovative solutions at
-                        CleverTap.
+                        I build backend systems that carry real production traffic — messaging infrastructure, data
+                        pipelines, and the security around them.
+                        <span id="exp-counter" class="exp-counter">3 years</span> in at CleverTap, Mumbai.
                     </p>
                     <div class="hero-buttons">
                         <a href="#contact" class="btn btn-primary">
@@ -127,27 +127,27 @@
             <div class="about-content">
                 <div class="about-text" data-aos="fade-right">
                     <p>
-                        I'm a <strong>Senior Software Engineer</strong> with <span id="exp-counter-about" class="exp-counter">3 years</span> of experience at
-                        <strong>CleverTap</strong>,
-                        one of the leading customer engagement platforms. My journey in tech has been driven by a
-                        passion for
-                        solving complex problems and building scalable solutions.
+                        I'm a <strong>Senior Software Engineer</strong> at <strong>CleverTap</strong>, where the last
+                        <span id="exp-counter-about" class="exp-counter">3 years</span> have gone into the systems that
+                        decide what message reaches a user, and when — across one of the largest customer engagement
+                        platforms.
                     </p>
                     <p>
-                        I specialize in backend development, data security, and large-scale system optimization.
-                        Throughout my career, I've had the opportunity to work on critical projects that directly impact
-                        millions of users and contribute to significant business growth.
+                        Most of my work is backend and data-intensive: owning a feature end to end, from system design
+                        and data modeling through performance tuning and the on-call reliability that comes after it
+                        ships. The problems I enjoy most are the ones where getting the model right early saves everyone
+                        a year of workarounds.
                     </p>
                     <p>
-                        Beyond coding, I'm passionate about mentoring junior developers and have successfully led teams
-                        to deliver multiple projects. When I'm not programming, you'll find me on a long-distance bike
-                        ride, playing competitive football, hiking, or at a chess tournament.
+                        I also spend a good share of my time mentoring — the part of the job where the payoff compounds.
+                        Away from a keyboard, you'll find me on a long-distance bike ride, playing competitive football,
+                        hiking, or sat across a board at a chess tournament.
                     </p>
                     <div class="about-highlights">
                         <div class="highlight">
                             <i class="fas fa-briefcase"></i>
                             <div>
-                                <h4>3+ Years</h4>
+                                <h4 id="exp-years">3+ Years</h4>
                                 <p>Professional Experience</p>
                             </div>
                         </div>
@@ -193,33 +193,25 @@
                         <h3>Senior Software Engineer</h3>
                         <h4><i class="fas fa-building"></i> CleverTap, Mumbai</h4>
                         <ul>
-                            <li><strong>Cross-Channel Message Frequency Capping:</strong> Architected a rule-based
-                                platform enforcing per-category, per-channel, and cross-channel limits on messages sent
-                                to a user, preventing over-messaging at scale. Designed for extensibility — it became
-                                the foundation for <span class="highlight-text">5 downstream features</span>, cutting
-                                their build time significantly.</li>
-                            <li><strong>Delivery Simulation &amp; Message Spacing:</strong> Built a simulator predicting
-                                which campaign messages a user would receive versus get blocked under configured limits
-                                — adopted by enterprise clients including Nykaa, Bajaj, and Axis Bank; also delivered
-                                configurable minimum time-gap enforcement between consecutive messages.</li>
-                            <li><strong>PII Encryption:</strong> Led platform-wide encryption of sensitive user data
-                                (profile attributes, email, phone) with controlled runtime decryption — strengthening
-                                data security and compliance posture without impacting campaign delivery performance.
+                            <li><strong>Cross-Channel Frequency Capping:</strong> Built the rule engine that stops users
+                                being over-messaged across every channel at once — and the platform
+                                <span class="highlight-text">5 later features</span> were built on top of.</li>
+                            <li><strong>Delivery Simulation:</strong> Shipped a dry-run simulator that shows which
+                                messages a user would actually receive before a campaign sends. Adopted by
+                                <span class="highlight-text">Nykaa, Bajaj, and Axis Bank</span>.</li>
+                            <li><strong>PII Encryption:</strong> Led platform-wide encryption of profile attributes,
+                                email, and phone — decrypting only at the point personalization needs it, with no cost
+                                to delivery performance.</li>
+                            <li><strong>Data Archival Pipeline:</strong> Automated moving dormant campaign data off the
+                                primary MongoDB cluster, and owned the rollout through to production hardening.</li>
+                            <li><strong>Server-Side App Inbox:</strong> Designed the Redis-backed in-app message store
+                                built for StockX, part of a <span class="highlight-text">$1M ARR</span> migration.</li>
+                            <li><strong>Dynamic Content Personalization:</strong> Made campaigns pull message content
+                                from client systems at send time, cutting the onboarding work new clients had to do.
                             </li>
-                            <li><strong>Data Archival Pipeline:</strong> Built an automated pipeline offloading inactive
-                                campaign targeting data from the primary MongoDB cluster to a dedicated archival
-                                datastore, improving primary cluster performance and stability; owned rollout and
-                                production hardening.</li>
-                            <li><strong>Server-Side App Inbox:</strong> Designed a Redis-backed inbox system for storing
-                                and delivering in-app user messages, built for StockX; contributed to migration of
-                                <span class="highlight-text">$1M ARR</span>.</li>
-                            <li><strong>Dynamic Content Personalization:</strong> Architected external API–driven message
-                                personalization, fetching content from client systems at send time to generate dynamic
-                                payloads and reduce client onboarding friction; also shipped multi-version support for
-                                campaign message content.</li>
-                            <li><strong>Leadership &amp; Reliability:</strong> POC for a 10-member team; mentored 3
-                                engineers delivering 5 production features in 2 months; drove cross-team incident
-                                resolution as part of on-call ownership; won the company-wide Hackathon.</li>
+                            <li><strong>Leadership &amp; Reliability:</strong> POC for a 10-member team, mentored 3
+                                engineers through 5 production features in 2 months, led cross-team incident response
+                                on-call, and won the company-wide Hackathon.</li>
                         </ul>
                     </div>
                 </div>
@@ -231,14 +223,14 @@
                         <h3>Software Engineer</h3>
                         <h4><i class="fas fa-building"></i> CleverTap, Mumbai</h4>
                         <ul>
-                            <li><strong>Campaign API Platform:</strong> Developed APIs enabling clients to create Push,
-                                Email, and SMS campaigns programmatically — currently powering
+                            <li><strong>Campaign API Platform:</strong> Opened up push, email, and SMS campaign creation
+                                to clients' own code instead of the dashboard — now behind
                                 <span class="highlight-text">40%+ of all campaigns</span> on the platform.</li>
-                            <li><strong>Audience &amp; Ads Integration:</strong> Integrated Facebook and Google Ads
-                                workflows for audience creation and ad set targeting using profile attributes such as
-                                email and phone number.</li>
-                            <li><strong>Push Notification Analytics:</strong> Built analytics pipelines and dashboards to
-                                compute push notification render rates, improving campaign performance visibility.</li>
+                            <li><strong>Audience &amp; Ads Integration:</strong> Wired Facebook and Google Ads into the
+                                platform, so audiences and ad set targeting could be built straight from profile data.
+                            </li>
+                            <li><strong>Push Notification Analytics:</strong> Built the pipelines and dashboards behind
+                                push render rates, giving teams a real read on how campaigns performed.</li>
                         </ul>
                     </div>
                 </div>
@@ -389,8 +381,8 @@
                         <i class="fas fa-filter"></i>
                         <h3>Cross-Channel Frequency Capping</h3>
                     </div>
-                    <p>Rule-based platform enforcing per-category, per-channel, and cross-channel message limits —
-                        the foundation for 5 downstream features.</p>
+                    <p>Decides in real time whether a user has already had too many messages — counting across every
+                        channel, not one at a time.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>Redis</span>
@@ -409,8 +401,8 @@
                         <i class="fas fa-vials"></i>
                         <h3>Delivery Simulation</h3>
                     </div>
-                    <p>Simulator predicting which messages a user receives vs. gets blocked under configured limits —
-                        adopted by Nykaa, Bajaj, and Axis Bank.</p>
+                    <p>Answers "who would actually get this?" before a campaign goes out, by dry-running it against the
+                        live capping rules.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>Redis</span>
@@ -429,8 +421,8 @@
                         <i class="fas fa-inbox"></i>
                         <h3>Server-Side App Inbox</h3>
                     </div>
-                    <p>Redis-backed inbox system for in-app user messages, built for StockX; contributed to migration of
-                        $1M ARR.</p>
+                    <p>Keeps a user's in-app messages on the server instead of the device, so the app just reads an
+                        inbox it doesn't have to maintain.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>Redis</span>
@@ -449,8 +441,8 @@
                         <i class="fas fa-archive"></i>
                         <h3>Data Archival Pipeline</h3>
                     </div>
-                    <p>Automated pipeline offloading inactive campaign targeting data from the primary MongoDB cluster
-                        to a dedicated archival datastore.</p>
+                    <p>Keeps the primary cluster fast by continuously moving out campaign data nobody is reading any
+                        more.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>MongoDB</span>
@@ -469,8 +461,8 @@
                         <i class="fas fa-link"></i>
                         <h3>Dynamic Content Personalization</h3>
                     </div>
-                    <p>External API–driven personalization fetching content from client systems at send time to generate
-                        dynamic payloads.</p>
+                    <p>Builds each message from the client's own live data at send time, rather than from whatever was
+                        loaded in advance.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>REST API</span>
@@ -545,8 +537,8 @@
                         <i class="fas fa-shield-alt"></i>
                         <h3>PII Data Encryption</h3>
                     </div>
-                    <p>Platform-wide encryption of sensitive user data with controlled runtime decryption — no impact on
-                        delivery performance.</p>
+                    <p>Sensitive profile data stays encrypted at rest and is unlocked only where a campaign genuinely
+                        needs to read it.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>Cryptography</span>
