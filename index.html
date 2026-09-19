@@ -140,8 +140,8 @@
                     </p>
                     <p>
                         Beyond coding, I'm passionate about mentoring junior developers and have successfully led teams
-                        to deliver multiple projects. When I'm not programming, you'll find me playing chess,
-                        hiking, or enjoying a game of football or badminton.
+                        to deliver multiple projects. When I'm not programming, you'll find me on a long-distance bike
+                        ride, playing competitive football, hiking, or at a chess tournament.
                     </p>
                     <div class="about-highlights">
                         <div class="highlight">
@@ -193,21 +193,33 @@
                         <h3>Senior Software Engineer</h3>
                         <h4><i class="fas fa-building"></i> CleverTap, Mumbai</h4>
                         <ul>
-                            <li><strong>Advanced Frequency Capping:</strong> Developed a rule-based frequency capping
-                                system with label-level, channel-level, and cross-channel limits to prevent user
-                                over-messaging.</li>
-                            <li><strong>Unified Inbox:</strong> Created a Redis-based server-side app inbox system
-                                instrumental in migrating <span class="highlight-text">$1M ARR</span> to CleverTap.</li>
-                            <li><strong>Campaign Auto Archival:</strong> Built an automated pipeline to offload inactive
-                                campaign data, improving system stability and performance.</li>
-                            <li><strong>Linked Content Personalization:</strong> Architected external API integrations
-                                for dynamic content personalization in campaigns.</li>
-                            <li><strong>Version History Management:</strong> Implemented support for multiple message
-                                versions in campaigns.</li>
-                            <li><strong>PII Encryption:</strong> Led encryption efforts for user data (properties,
-                                email, phone), ensuring secure storage and decrypted personalisation.</li>
-                            <li><strong>Acting Team Lead:</strong> Primary POC for a 10-member team. Mentored 3 junior
-                                developers who delivered 5 projects in 2 months.</li>
+                            <li><strong>Cross-Channel Message Frequency Capping:</strong> Architected a rule-based
+                                platform enforcing per-category, per-channel, and cross-channel limits on messages sent
+                                to a user, preventing over-messaging at scale. Designed for extensibility — it became
+                                the foundation for <span class="highlight-text">5 downstream features</span>, cutting
+                                their build time significantly.</li>
+                            <li><strong>Delivery Simulation &amp; Message Spacing:</strong> Built a simulator predicting
+                                which campaign messages a user would receive versus get blocked under configured limits
+                                — adopted by enterprise clients including Nykaa, Bajaj, and Axis Bank; also delivered
+                                configurable minimum time-gap enforcement between consecutive messages.</li>
+                            <li><strong>PII Encryption:</strong> Led platform-wide encryption of sensitive user data
+                                (profile attributes, email, phone) with controlled runtime decryption — strengthening
+                                data security and compliance posture without impacting campaign delivery performance.
+                            </li>
+                            <li><strong>Data Archival Pipeline:</strong> Built an automated pipeline offloading inactive
+                                campaign targeting data from the primary MongoDB cluster to a dedicated archival
+                                datastore, improving primary cluster performance and stability; owned rollout and
+                                production hardening.</li>
+                            <li><strong>Server-Side App Inbox:</strong> Designed a Redis-backed inbox system for storing
+                                and delivering in-app user messages, built for StockX; contributed to migration of
+                                <span class="highlight-text">$1M ARR</span>.</li>
+                            <li><strong>Dynamic Content Personalization:</strong> Architected external API–driven message
+                                personalization, fetching content from client systems at send time to generate dynamic
+                                payloads and reduce client onboarding friction; also shipped multi-version support for
+                                campaign message content.</li>
+                            <li><strong>Leadership &amp; Reliability:</strong> POC for a 10-member team; mentored 3
+                                engineers delivering 5 production features in 2 months; drove cross-team incident
+                                resolution as part of on-call ownership; won the company-wide Hackathon.</li>
                         </ul>
                     </div>
                 </div>
@@ -219,13 +231,14 @@
                         <h3>Software Engineer</h3>
                         <h4><i class="fas fa-building"></i> CleverTap, Mumbai</h4>
                         <ul>
-                            <li><strong>Campaign API:</strong> Developed an API allowing clients to create campaigns
-                                programmatically, resulting in <span class="highlight-text">40% of total
-                                    campaigns</span> now being API-based.</li>
-                            <li><strong>Facebook & Google Audience Integration:</strong> Integrated audience and adset
-                                creation workflow with CleverTap for precise targeting.</li>
-                            <li><strong>Push Notification Analytics Dashboard:</strong> Built a dashboard and cron job
-                                to calculate push notification render rates.</li>
+                            <li><strong>Campaign API Platform:</strong> Developed APIs enabling clients to create Push,
+                                Email, and SMS campaigns programmatically — currently powering
+                                <span class="highlight-text">40%+ of all campaigns</span> on the platform.</li>
+                            <li><strong>Audience &amp; Ads Integration:</strong> Integrated Facebook and Google Ads
+                                workflows for audience creation and ad set targeting using profile attributes such as
+                                email and phone number.</li>
+                            <li><strong>Push Notification Analytics:</strong> Built analytics pipelines and dashboards to
+                                compute push notification render rates, improving campaign performance visibility.</li>
                         </ul>
                     </div>
                 </div>
@@ -256,17 +269,6 @@
                     </div>
                 </div>
 
-                <!-- Verzeo -->
-                <div class="timeline-item" data-aos="fade-up">
-                    <div class="timeline-date">May 2020 - Jun 2020</div>
-                    <div class="timeline-content">
-                        <h3>Machine Learning Intern</h3>
-                        <h4><i class="fas fa-building"></i> Verzeo</h4>
-                        <ul>
-                            <li>Worked on machine learning algorithms and developed predictive models.</li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
@@ -292,7 +294,7 @@
                         <i class="fas fa-school"></i>
                     </div>
                     <h3>Senior Secondary School (XII)</h3>
-                    <h4>AECS-4 Rawatbhata, Rajasthan</h4>
+                    <h4>AECS Rawatbhata, Rajasthan</h4>
                     <p class="date">2015 - 2017</p>
                     <p class="grade"><strong>91.4%</strong> (CBSE)</p>
                 </div>
@@ -301,7 +303,7 @@
                         <i class="fas fa-book"></i>
                     </div>
                     <h3>Secondary School (X)</h3>
-                    <h4>AECS-2 Rawatbhata, Rajasthan</h4>
+                    <h4>AECS Rawatbhata, Rajasthan</h4>
                     <p class="date">2005 - 2015</p>
                     <p class="grade"><strong>9.4 CGPA</strong> (CBSE)</p>
                 </div>
@@ -317,7 +319,7 @@
             </h2>
             <div class="skills-grid">
                 <div class="skill-category" data-aos="fade-up">
-                    <h3><i class="fas fa-code"></i> Programming Languages</h3>
+                    <h3><i class="fas fa-code"></i> Languages</h3>
                     <div class="skill-tags">
                         <span class="skill-tag">Java</span>
                         <span class="skill-tag">C++</span>
@@ -326,30 +328,28 @@
                     </div>
                 </div>
                 <div class="skill-category" data-aos="fade-up" data-aos-delay="100">
-                    <h3><i class="fas fa-database"></i> Databases & Tools</h3>
+                    <h3><i class="fas fa-database"></i> Datastores</h3>
                     <div class="skill-tags">
                         <span class="skill-tag">Redis</span>
                         <span class="skill-tag">MongoDB</span>
-                        <span class="skill-tag">MySQL</span>
-                        <span class="skill-tag">Spring Boot</span>
+                        <span class="skill-tag">RocksDB</span>
                     </div>
                 </div>
                 <div class="skill-category" data-aos="fade-up" data-aos-delay="200">
-                    <h3><i class="fas fa-cogs"></i> Core Competencies</h3>
+                    <h3><i class="fas fa-cogs"></i> Backend Engineering</h3>
                     <div class="skill-tags">
-                        <span class="skill-tag">Backend Development</span>
-                        <span class="skill-tag">System Design</span>
-                        <span class="skill-tag">Data Security</span>
-                        <span class="skill-tag">API Development</span>
+                        <span class="skill-tag">Distributed Systems</span>
+                        <span class="skill-tag">API Design</span>
+                        <span class="skill-tag">Data Modeling</span>
+                        <span class="skill-tag">Performance Optimization</span>
                     </div>
                 </div>
                 <div class="skill-category" data-aos="fade-up" data-aos-delay="300">
-                    <h3><i class="fas fa-users"></i> Soft Skills</h3>
+                    <h3><i class="fas fa-users"></i> Professional Strengths</h3>
                     <div class="skill-tags">
-                        <span class="skill-tag">Leadership</span>
-                        <span class="skill-tag">Team Management</span>
-                        <span class="skill-tag">Problem Solving</span>
-                        <span class="skill-tag">Mentoring</span>
+                        <span class="skill-tag">Technical Leadership</span>
+                        <span class="skill-tag">Structured Problem Solving</span>
+                        <span class="skill-tag">Mentorship</span>
                     </div>
                 </div>
             </div>
@@ -383,14 +383,14 @@
                     </div>
                 </div>
 
-                <!-- Advanced Frequency Capping -->
+                <!-- Cross-Channel Frequency Capping -->
                 <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="project-header">
                         <i class="fas fa-filter"></i>
-                        <h3>Advanced Frequency Capping</h3>
+                        <h3>Cross-Channel Frequency Capping</h3>
                     </div>
-                    <p>Rule-based frequency capping system with multi-level limits to prevent user over-messaging at
-                        scale.</p>
+                    <p>Rule-based platform enforcing per-category, per-channel, and cross-channel message limits —
+                        the foundation for 5 downstream features.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>Redis</span>
@@ -403,13 +403,34 @@
                     </div>
                 </div>
 
-                <!-- Unified Inbox Project -->
+                <!-- Delivery Simulation & Message Spacing -->
                 <div class="project-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="project-header">
-                        <i class="fas fa-inbox"></i>
-                        <h3>Unified Inbox System</h3>
+                        <i class="fas fa-vials"></i>
+                        <h3>Delivery Simulation</h3>
                     </div>
-                    <p>Redis-based server-side app inbox system that helped migrate $1M ARR to CleverTap platform.</p>
+                    <p>Simulator predicting which messages a user receives vs. gets blocked under configured limits —
+                        adopted by Nykaa, Bajaj, and Axis Bank.</p>
+                    <div class="project-tech">
+                        <span>Java</span>
+                        <span>Redis</span>
+                        <span>Simulation</span>
+                    </div>
+                    <div class="project-links">
+                        <button class="btn-details" onclick="loadProjectDetails('delivery-simulation')">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Server-Side App Inbox -->
+                <div class="project-card" data-aos="fade-up">
+                    <div class="project-header">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Server-Side App Inbox</h3>
+                    </div>
+                    <p>Redis-backed inbox system for in-app user messages, built for StockX; contributed to migration of
+                        $1M ARR.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>Redis</span>
@@ -422,14 +443,14 @@
                     </div>
                 </div>
 
-                <!-- Campaign Auto Archival -->
-                <div class="project-card" data-aos="fade-up">
+                <!-- Data Archival Pipeline -->
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="project-header">
                         <i class="fas fa-archive"></i>
-                        <h3>Campaign Auto Archival</h3>
+                        <h3>Data Archival Pipeline</h3>
                     </div>
-                    <p>Automated pipeline to offload inactive campaign data from primary clusters, improving system
-                        stability.</p>
+                    <p>Automated pipeline offloading inactive campaign targeting data from the primary MongoDB cluster
+                        to a dedicated archival datastore.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>MongoDB</span>
@@ -442,14 +463,14 @@
                     </div>
                 </div>
 
-                <!-- Linked Content Personalization -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+                <!-- Dynamic Content Personalization -->
+                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="project-header">
                         <i class="fas fa-link"></i>
-                        <h3>Linked Content Personalization</h3>
+                        <h3>Dynamic Content Personalization</h3>
                     </div>
-                    <p>API-driven content personalization system enabling dynamic payload generation and reducing
-                        onboarding friction.</p>
+                    <p>External API–driven personalization fetching content from client systems at send time to generate
+                        dynamic payloads.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>REST API</span>
@@ -463,7 +484,7 @@
                 </div>
 
                 <!-- Campaign API Project -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="project-card" data-aos="fade-up">
                     <div class="project-header">
                         <i class="fas fa-rocket"></i>
                         <h3>Campaign API System</h3>
@@ -483,7 +504,7 @@
                 </div>
 
                 <!-- Versioned Messaging -->
-                <div class="project-card" data-aos="fade-up">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="project-header">
                         <i class="fas fa-code-branch"></i>
                         <h3>Versioned Messaging</h3>
@@ -501,7 +522,7 @@
                 </div>
 
                 <!-- Audience Integration -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="project-header">
                         <i class="fab fa-facebook"></i>
                         <h3>Ads Integration</h3>
@@ -519,12 +540,13 @@
                 </div>
 
                 <!-- PII Encryption -->
-                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="project-card" data-aos="fade-up">
                     <div class="project-header">
                         <i class="fas fa-shield-alt"></i>
                         <h3>PII Data Encryption</h3>
                     </div>
-                    <p>End-to-end encryption system for user data including properties, email, and phone numbers.</p>
+                    <p>Platform-wide encryption of sensitive user data with controlled runtime decryption — no impact on
+                        delivery performance.</p>
                     <div class="project-tech">
                         <span>Java</span>
                         <span>Cryptography</span>
@@ -538,7 +560,7 @@
                 </div>
 
                 <!-- Push Analytics -->
-                <div class="project-card" data-aos="fade-up">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="project-header">
                         <i class="fas fa-chart-line"></i>
                         <h3>Push Analytics</h3>
@@ -566,16 +588,21 @@
             </h2>
             <div class="awards-grid">
                 <div class="award-card" data-aos="fade-up">
+                    <i class="fas fa-award"></i>
+                    <h3>Hackathon Winner</h3>
+                    <p>CleverTap company-wide Hackathon (2025)</p>
+                </div>
+                <div class="award-card" data-aos="fade-up" data-aos-delay="100">
                     <i class="fas fa-trophy"></i>
                     <h3>KIIT Merit Scholarship</h3>
                     <p>Awarded for academic excellence</p>
                 </div>
-                <div class="award-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="award-card" data-aos="fade-up" data-aos-delay="200">
                     <i class="fas fa-certificate"></i>
                     <h3>Microsoft Technology Associate</h3>
                     <p>Certificate for Python Language</p>
                 </div>
-                <div class="award-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="award-card" data-aos="fade-up" data-aos-delay="300">
                     <i class="fas fa-chess"></i>
                     <h3>FIDE Rated Chess Player</h3>
                     <p>International Chess Tournament Player</p>

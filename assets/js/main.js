@@ -241,28 +241,48 @@ function initProjectModals() {
 function getProjectData(projectId) {
     const projects = {
         'frequency-capping': {
-            title: 'Advanced Frequency Capping System',
+            title: 'Cross-Channel Message Frequency Capping',
             content: `
                 <h3>Overview</h3>
-                <p>Developed a sophisticated rule-based frequency capping system to prevent user over-messaging at scale. This system handles label-level, channel-level, and cross-channel limits.</p>
-                
+                <p>Architected a rule-based platform enforcing per-category, per-channel, and cross-channel limits on messages sent to a user, preventing over-messaging at scale.</p>
+
                 <h3>Key Features</h3>
                 <ul>
                     <li>Complex rule evaluation engine</li>
                     <li>Cross-channel message limiting</li>
                     <li>Real-time enforcement at scale</li>
-                    <li>Granular control with label-level limits</li>
+                    <li>Granular control with per-category limits</li>
                 </ul>
-                
+
                 <h3>Impact</h3>
-                <p>Significantly improved user experience by preventing message fatigue and ensuring compliance with communication policies in high-throughput environments.</p>
-                
+                <p>Designed for extensibility — it became the foundation for <strong>5 downstream features</strong> (segment-level caps, campaign prioritization, delivery simulation, message-spacing controls, and regulatory frequency compliance), significantly reducing their build time.</p>
+
+                <h3>Technologies Used</h3>
+                <p>Java, Redis, Distributed Systems, Rule Engine</p>
+            `
+        },
+        'delivery-simulation': {
+            title: 'Delivery Simulation & Message Spacing',
+            content: `
+                <h3>Overview</h3>
+                <p>Built a simulator that predicts which campaign messages a user would actually receive versus get blocked under the configured frequency limits — letting marketers validate their capping rules before a campaign goes out.</p>
+
+                <h3>Key Features</h3>
+                <ul>
+                    <li>Dry-run evaluation against live capping rules</li>
+                    <li>Per-user breakdown of delivered vs. blocked messages</li>
+                    <li>Configurable minimum time-gap enforcement between consecutive messages</li>
+                </ul>
+
+                <h3>Impact</h3>
+                <p>Adopted by large enterprise clients including <strong>Nykaa, Bajaj, and Axis Bank</strong>, giving them confidence in their messaging policies before launch.</p>
+
                 <h3>Technologies Used</h3>
                 <p>Java, Redis, Distributed Systems, Rule Engine</p>
             `
         },
         'campaign-archival': {
-            title: 'Campaign Auto Archival Pipeline',
+            title: 'Data Archival Pipeline',
             content: `
                 <h3>Overview</h3>
                 <p>Built an automated pipeline to offload inactive campaign targeting data from the primary MongoDB cluster to a dedicated archival datastore.</p>
@@ -276,17 +296,17 @@ function getProjectData(projectId) {
                 </ul>
                 
                 <h3>Impact</h3>
-                <p>Improved overall system performance and stability by reducing the load on the primary operational database.</p>
+                <p>Improved primary cluster performance and stability by reducing load on the operational database. Owned the rollout and production hardening end-to-end.</p>
                 
                 <h3>Technologies Used</h3>
                 <p>Java, MongoDB, Data Pipelines, System Optimization</p>
             `
         },
         'linked-content': {
-            title: 'Linked Content Personalization',
+            title: 'Dynamic Content Personalization',
             content: `
                 <h3>Overview</h3>
-                <p>Architected an external API-driven content personalization system for campaigns, enabling dynamic payload generation based on real-time data.</p>
+                <p>Architected external API–driven message personalization, fetching content from client systems at send time to generate dynamic payloads.</p>
                 
                 <h3>Key Features</h3>
                 <ul>
@@ -381,10 +401,10 @@ function getProjectData(projectId) {
             `
         },
         'unified-inbox': {
-            title: 'Unified Inbox System',
+            title: 'Server-Side App Inbox',
             content: `
                 <h3>Overview</h3>
-                <p>Created a Redis-based server-side app inbox system that provides a centralized message management solution for mobile applications.</p>
+                <p>Designed a Redis-backed inbox system for storing and delivering in-app user messages, built for StockX.</p>
                 
                 <h3>Key Features</h3>
                 <ul>
@@ -396,7 +416,7 @@ function getProjectData(projectId) {
                 </ul>
                 
                 <h3>Impact</h3>
-                <p>This system was instrumental in migrating <strong>$1M ARR</strong> to the CleverTap platform, providing enterprise clients with a robust messaging infrastructure.</p>
+                <p>Contributed to the migration of <strong>$1M ARR</strong> to the CleverTap platform, providing enterprise clients with a robust messaging infrastructure.</p>
                 
                 <h3>Technologies Used</h3>
                 <p>Java, Redis, Microservices Architecture, WebSockets, REST API</p>
@@ -406,22 +426,21 @@ function getProjectData(projectId) {
             title: 'PII Data Encryption System',
             content: `
                 <h3>Overview</h3>
-                <p>Led the development of an end-to-end encryption system for protecting personally identifiable information (PII) including user properties, emails, and phone numbers.</p>
-                
+                <p>Led platform-wide encryption of sensitive user data — profile attributes, email, and phone — with controlled runtime decryption for personalization.</p>
+
                 <h3>Key Features</h3>
                 <ul>
-                    <li>AES-256 encryption for data at rest</li>
-                    <li>TLS 1.3 for data in transit</li>
-                    <li>Key rotation and management system</li>
-                    <li>Secure decryption for personalization</li>
-                    <li>Compliance with GDPR and data protection regulations</li>
+                    <li>Encryption of PII at rest across the platform</li>
+                    <li>Controlled runtime decryption, scoped to personalization</li>
+                    <li>Key management and rotation</li>
+                    <li>No measurable impact on campaign delivery performance</li>
                 </ul>
-                
+
                 <h3>Impact</h3>
-                <p>Enhanced data security for millions of user records, ensuring compliance with international data protection standards and building client trust.</p>
-                
+                <p>Strengthened the platform's data security and compliance posture across millions of user records, without slowing down campaign delivery.</p>
+
                 <h3>Technologies Used</h3>
-                <p>Java, Cryptography Libraries, HSM Integration, Key Management Systems</p>
+                <p>Java, Cryptography, Key Management</p>
             `
         }
     };
