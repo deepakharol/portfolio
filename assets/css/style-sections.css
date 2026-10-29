@@ -601,6 +601,14 @@
     transform: translateY(-3px);
 }
 
+.footer .footer-note {
+    max-width: 640px;
+    margin: 1.25rem auto 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    opacity: 0.75;
+}
+
 /* ===== Modals ===== */
 .modal {
     display: none;
