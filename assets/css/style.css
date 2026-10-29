@@ -288,7 +288,11 @@ body {
     }
 }
 
+/* z-index: the CV menu opens over .hero-social, whose fadeInUp animation
+   gives it its own stacking context later in the document */
 .hero-buttons {
+    position: relative;
+    z-index: 2;
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
@@ -329,6 +333,95 @@ body {
     background: white;
     color: var(--primary-color);
     transform: translateY(-2px);
+}
+
+/* ===== CV download menu ===== */
+.cv-menu {
+    position: relative;
+}
+
+/* A <button>, unlike the <a> beside it, doesn't inherit the page font.
+   width: fills .cv-menu, so it stretches like its sibling when the buttons stack on mobile */
+.cv-menu .btn {
+    width: 100%;
+    font-family: inherit;
+    line-height: inherit;
+}
+
+.cv-menu .btn[aria-expanded="true"] {
+    background: white;
+    color: var(--primary-color);
+}
+
+.cv-menu-caret {
+    font-size: 0.75em;
+    transition: var(--transition);
+}
+
+.cv-menu .btn[aria-expanded="true"] .cv-menu-caret {
+    transform: rotate(180deg);
+}
+
+.cv-menu-list {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 270px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 14px;
+    box-shadow: var(--box-shadow-hover);
+    animation: cv-menu-in 0.15s ease both;
+}
+
+.cv-menu-list[hidden] {
+    display: none;
+}
+
+@keyframes cv-menu-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
+
+.cv-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    color: var(--dark-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.cv-menu-item:hover,
+.cv-menu-item:focus-visible {
+    background: var(--light-color);
+}
+
+.cv-menu-item i {
+    width: 1.25rem;
+    font-size: 1.25rem;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.cv-menu-item span {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.cv-menu-item strong {
+    font-size: 0.95rem;
+}
+
+.cv-menu-item small {
+    font-size: 0.8rem;
+    color: var(--text-light);
 }
 
 .hero-social {

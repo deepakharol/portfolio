@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initSmoothScrolling();
     initContactForm();
     initProjectModals();
+    initCvMenu();
     initTypingEffect();
     initScrollAnimations();
     initExperienceCounter();
@@ -116,9 +117,9 @@ function initTypingEffect() {
     if (!typingText) return;
 
     const texts = [
-        'Senior Backend Engineer',
-        'Problem Solver',
-        'Team Leader'
+        'Staff Software Engineer',
+        'Backend & Distributed Systems',
+        'Tech Lead'
     ];
 
     let textIndex = 0;
@@ -237,210 +238,228 @@ function initProjectModals() {
     });
 }
 
+// Hero "Download CV" button: a disclosure listing the 1-page and 2-page CVs
+function initCvMenu() {
+    const toggle = document.getElementById('cv-menu-toggle');
+    const list = document.getElementById('cv-menu-list');
+    if (!toggle || !list) return;
+
+    function setCvMenuOpen(open) {
+        list.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+    }
+
+    toggle.addEventListener('click', () => setCvMenuOpen(list.hidden));
+    list.addEventListener('click', (e) => {
+        if (e.target.closest('a')) setCvMenuOpen(false);
+    });
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.cv-menu')) setCvMenuOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !list.hidden) {
+            setCvMenuOpen(false);
+            toggle.focus();
+        }
+    });
+}
+
 // Get static project data
 function getProjectData(projectId) {
     const projects = {
-        'frequency-capping': {
-            title: 'Cross-Channel Message Frequency Capping',
+        'price-drop-alerts': {
+            title: 'Flipkart Price-Drop & Back-in-Stock Alerts',
             content: `
                 <h3>Overview</h3>
-                <p>Architected a rule-based platform enforcing per-category, per-channel, and cross-channel limits on messages sent to a user, preventing over-messaging at scale.</p>
+                <p>When a product a shopper viewed gets cheaper or comes back in stock, they get a personalised push. For Flipkart that means a 150M-product catalog taking around 50M updates a day, and millions of qualifying users per sale — so the pipeline was designed for Big Billion Days scale from day one. I was technical lead across the five services involved.</p>
 
-                <h3>Key Features</h3>
+                <h3>How It Flows</h3>
+                <p>Catalog ingestion captures the change, a Redis queue carries it to the event processor, and the processor fans it out to all 47 shards of the user-behaviour store. The delivery service then streams the matching users and enqueues their pushes. Back-in-stock alerts ride the same pipeline.</p>
+
+                <h3>What I Built</h3>
                 <ul>
-                    <li>Complex rule evaluation engine</li>
-                    <li>Cross-channel message limiting</li>
-                    <li>Real-time enforcement at scale</li>
-                    <li>Granular control with per-category limits</li>
+                    <li>A delivery side that never buffers a full response: a streaming reader, a bounded window of concurrent requests, and disk-spilling k-way-merge de-duplication</li>
+                    <li>A pacer that backs off against a queue shared with other tenants' transactional traffic</li>
+                    <li>Safety rails: freshness gates that fail closed, all-or-nothing retries per trigger, at-least-once hand-off de-duplicated on a trigger id, out-of-stock withholding and purchase suppression</li>
+                    <li>Every knob as per-account configuration — thresholds, price bands, pacing — re-read each round, so it can change mid-sale without a deploy</li>
                 </ul>
 
-                <h3>Impact</h3>
-                <p>Designed for extensibility — it became the foundation for <strong>5 downstream features</strong> (segment-level caps, campaign prioritization, delivery simulation, message-spacing controls, and regulatory frequency compliance), significantly reducing their build time.</p>
+                <h3>Shipping It Safely</h3>
+                <p>A 20k-line change, split into <strong>17 stacked PRs</strong> ordered reader-before-writer, so any mix of old and new services is always a valid state. I also wrote the contract the platform team's store was built against.</p>
 
                 <h3>Technologies Used</h3>
-                <p>Java, Redis, Distributed Systems, Rule Engine</p>
+                <p>Java, Redis, event-driven services, sharded in-memory state</p>
             `
         },
-        'delivery-simulation': {
-            title: 'Delivery Simulation & Message Spacing',
+        'ai-decisioning': {
+            title: 'AI Decisioning Agents: 1:1 Individualisation',
             content: `
                 <h3>Overview</h3>
-                <p>Built a simulator that predicts which campaign messages a user would actually receive versus get blocked under the configured frequency limits — letting marketers validate their capping rules before a campaign goes out.</p>
+                <p>CleverTap's decisioning layer runs reinforcement-learning agents, each optimising a reward — clicks, conversions or revenue. Nightly, an agent scores every campaign a user qualifies for, and the delivery service sends the top-ranked message that still fits that user's frequency budget.</p>
 
-                <h3>Key Features</h3>
+                <h3>What I Built</h3>
                 <ul>
-                    <li>Dry-run evaluation against live capping rules</li>
-                    <li>Per-user breakdown of delivered vs. blocked messages</li>
-                    <li>Configurable minimum time-gap enforcement between consecutive messages</li>
+                    <li>Led a six-PR stacked rollout extending the ranker from choosing the campaign to choosing the content variant each user receives — every user gets their own winner, not one A/B winner for everyone</li>
+                    <li>Designed the versioned 11-byte ranking-store entry: the variant id takes one nibble and the other is reserved, so the next field ships without a format bump while older entries stay readable</li>
+                    <li>Wrote the cross-service contract, and a fail-open resolver whose fallbacks are counted in dispatch diagnostics rather than dropped silently</li>
+                    <li>Built the read-only budget simulator the ranker uses to keep its pick inside each user's caps</li>
                 </ul>
 
                 <h3>Impact</h3>
-                <p>Adopted by large enterprise clients including <strong>Nykaa, Bajaj, and Axis Bank</strong>, giving them confidence in their messaging policies before launch.</p>
+                <p>Sold as the <strong>Campaign and Variant Decisioning Agents</strong> paid add-on, with first deployments at Axis Bank and Nykaa.</p>
 
                 <h3>Technologies Used</h3>
-                <p>Java, Redis, Distributed Systems, Rule Engine</p>
+                <p>Java, ranking store, versioned binary formats, feature flags</p>
+            `
+        },
+        'frequency-capping': {
+            title: 'Frequency Capping',
+            content: `
+                <h3>Overview</h3>
+                <p>Brands set rules for how many messages a user may receive — by channel, label, segment or team, over daily, weekly, monthly or per-slot windows. This engine enforces those budgets on the dispatch hot path, for every message, without a database call.</p>
+
+                <h3>What I Built</h3>
+                <ul>
+                    <li>A credit-based rule model replacing fixed per-channel counters. Criteria are optional and window types are plug-ins, so a new kind of rule needs no change to the dispatch path</li>
+                    <li>Per-user state as a compact byte array — 3 bytes per rule, 5 per campaign — rebuilt nightly from 30 days of send history, so a cap check is a few array reads</li>
+                    <li>Real-time rule propagation to every shard, a live debug endpoint, and an idempotent migration from legacy caps</li>
+                    <li>Hardening for scale: 64-stripe locking against cache stampedes, stale-on-error reads, rolling windows and lazy slot resets</li>
+                </ul>
+                <p>Shipped as seven stacked PRs, from storage and APIs through to the credit engine.</p>
+
+                <h3>Impact</h3>
+                <p>Live for <strong>60+ enterprise accounts</strong> within six months of private beta — including Kotak Mahindra Bank group (50M+ customers), Axis Bank (~59M customers), Nykaa, Bajaj Finserv, Angel One, Apollo, Carousell and Cars24 — and the foundation four later products were built on.</p>
+
+                <h3>Technologies Used</h3>
+                <p>Java, sharded in-memory state, real-time configuration propagation</p>
+            `
+        },
+        'message-spacing': {
+            title: 'Message Spacing with Deferral',
+            content: `
+                <h3>Overview</h3>
+                <p>Brands can require a minimum gap between messages to the same user. A message that hit that gap used to be dropped. Now it waits for its turn.</p>
+
+                <h3>What I Built</h3>
+                <ul>
+                    <li>A runtime that, when a gap blocks a message, works out the next eligible minute — accounting for the gap clearing, quiet-hours shifts, delivery windows and end-of-day cutoffs — reserves it in the user's budget, and re-enqueues the message through a timed queue</li>
+                    <li>An opt-in for both dashboard and API campaigns</li>
+                    <li>Outage resilience for scheduled campaigns: after two incidents in which a user-behaviour store outage permanently killed customer campaigns, scheduled sends now retry with exponential backoff instead of stopping. Retry budget and backoff are typed per-account configuration with safe defaults</li>
+                </ul>
+
+                <h3>Technologies Used</h3>
+                <p>Java, timed queues, exponential backoff</p>
             `
         },
         'campaign-archival': {
-            title: 'Data Archival Pipeline',
+            title: 'Campaign Data Archival',
             content: `
                 <h3>Overview</h3>
-                <p>Built an automated pipeline to offload inactive campaign targeting data from the primary MongoDB cluster to a dedicated archival datastore.</p>
-                
-                <h3>Key Features</h3>
+                <p>Finished campaigns and their statistics piled up on the primary MongoDB cluster and became the platform's largest source of slow queries.</p>
+
+                <h3>What I Built</h3>
+                <p>A reusable collection-archival framework, applied first to campaign data. Campaigns past a configurable age move, with their statistics, to a separate low-index MongoDB cluster; threshold, batch size and schedule are all configuration.</p>
                 <ul>
-                    <li>Automated data identification and migration</li>
-                    <li>Zero-downtime archival process</li>
-                    <li>Data integrity verification</li>
-                    <li>Performance optimization for primary cluster</li>
+                    <li>Reads fall back to the archive transparently</li>
+                    <li>Archived campaigns can't be republished by accident, but can still be cloned</li>
                 </ul>
-                
+
                 <h3>Impact</h3>
-                <p>Improved primary cluster performance and stability by reducing load on the operational database. Owned the rollout and production hardening end-to-end.</p>
-                
+                <p>Took the largest source of slow queries off the primary cluster, and left a framework the next collection can reuse.</p>
+
                 <h3>Technologies Used</h3>
-                <p>Java, MongoDB, Data Pipelines, System Optimization</p>
-            `
-        },
-        'linked-content': {
-            title: 'Dynamic Content Personalization',
-            content: `
-                <h3>Overview</h3>
-                <p>Architected external API–driven message personalization, fetching content from client systems at send time to generate dynamic payloads.</p>
-                
-                <h3>Key Features</h3>
-                <ul>
-                    <li>External API integration for dynamic content</li>
-                    <li>Real-time payload generation</li>
-                    <li>Simplified client onboarding process</li>
-                    <li>High-performance data fetching</li>
-                </ul>
-                
-                <h3>Impact</h3>
-                <p>Significantly reduced client onboarding friction and enabled highly personalized campaign content served at runtime.</p>
-                
-                <h3>Technologies Used</h3>
-                <p>Java, REST APIs, Microservices, Real-time Processing</p>
-            `
-        },
-        'versioned-messaging': {
-            title: 'Versioned Messaging Support',
-            content: `
-                <h3>Overview</h3>
-                <p>Implemented robust multi-version support for campaign messages, allowing for safer updates and A/B testing capabilities.</p>
-                
-                <h3>Key Features</h3>
-                <ul>
-                    <li>Message version control</li>
-                    <li>Backward compatibility support</li>
-                    <li>Safe rollout mechanisms</li>
-                </ul>
-                
-                <h3>Technologies Used</h3>
-                <p>Java, System Design, Data Modeling</p>
-            `
-        },
-        'audience-integration': {
-            title: 'Facebook & Google Audience Integration',
-            content: `
-                <h3>Overview</h3>
-                <p>Integrated Facebook and Google Ads workflows directly into the CleverTap platform for seamless audience creation and ad set targeting.</p>
-                
-                <h3>Key Features</h3>
-                <ul>
-                    <li>Direct integration with Ad platforms APIs</li>
-                    <li>Automated audience syncing</li>
-                    <li>Profile attribute targeting (email, phone)</li>
-                    <li>Streamlined marketing workflow</li>
-                </ul>
-                
-                <h3>Technologies Used</h3>
-                <p>Java, Third-party APIs, OAuth, Batch Processing</p>
-            `
-        },
-        'push-analytics': {
-            title: 'Push Notification Analytics',
-            content: `
-                <h3>Overview</h3>
-                <p>Built comprehensive analytics pipelines and dashboards to compute and visualize push notification render rates (Impressions vs Sent).</p>
-                
-                <h3>Key Features</h3>
-                <ul>
-                    <li>Data pipeline for tracking delivery stats</li>
-                    <li>Real-time dashboard visualization</li>
-                    <li>Calculation of complex metrics</li>
-                </ul>
-                
-                <h3>Impact</h3>
-                <p>Greatly improved visibility into campaign performance, helping clients optimize their messaging strategies.</p>
-                
-                <h3>Technologies Used</h3>
-                <p>Java, Data Analytics, Visualization Tools</p>
-            `
-        },
-        'campaign-api': {
-            title: 'Campaign API System',
-            content: `
-                <h3>Overview</h3>
-                <p>Developed a comprehensive RESTful API system that enables clients to programmatically create and manage marketing campaigns across multiple channels including push notifications, emails, and SMS.</p>
-                
-                <h3>Key Features</h3>
-                <ul>
-                    <li>RESTful API design with comprehensive documentation</li>
-                    <li>Support for multiple campaign types (Push, Email, SMS)</li>
-                    <li>Batch processing capabilities for large-scale campaigns</li>
-                    <li>Real-time validation and error handling</li>
-                    <li>Rate limiting and authentication mechanisms</li>
-                </ul>
-                
-                <h3>Impact</h3>
-                <p>This API system now powers <strong>40% of all campaigns</strong> on the CleverTap platform, processing millions of requests daily and significantly improving client automation capabilities.</p>
-                
-                <h3>Technologies Used</h3>
-                <p>Java, Spring Boot, Redis, MongoDB, REST API, OAuth 2.0</p>
+                <p>Java, MongoDB</p>
             `
         },
         'unified-inbox': {
-            title: 'Server-Side App Inbox',
+            title: 'Server-Side Unified Inbox',
             content: `
                 <h3>Overview</h3>
-                <p>Designed a Redis-backed inbox system for storing and delivering in-app user messages, built for StockX.</p>
-                
-                <h3>Key Features</h3>
+                <p>A new channel built for StockX: an in-app inbox stored server-side in Redis and targeted at users rather than devices.</p>
+
+                <h3>What I Owned</h3>
                 <ul>
-                    <li>High-performance Redis-based storage</li>
-                    <li>Real-time message synchronization</li>
-                    <li>Support for rich media content</li>
-                    <li>Message prioritization and categorization</li>
-                    <li>Analytics and engagement tracking</li>
+                    <li>The backend end to end: CRUD, and dispatch for scheduled, live-trigger and API-trigger campaigns</li>
+                    <li>Reporting, billing integration and version history</li>
+                    <li>Retry for Redis outages</li>
+                    <li>The design note and the operations handover</li>
                 </ul>
-                
+
                 <h3>Impact</h3>
-                <p>Contributed to the migration of <strong>$1M ARR</strong> to the CleverTap platform, providing enterprise clients with a robust messaging infrastructure.</p>
-                
+                <p>Supported a <strong>$1M ARR</strong> customer migration.</p>
+
                 <h3>Technologies Used</h3>
-                <p>Java, Redis, Microservices Architecture, WebSockets, REST API</p>
+                <p>Java, Redis</p>
             `
         },
-        'encryption': {
-            title: 'PII Data Encryption System',
+        'reliability-security': {
+            title: 'Reliability, Performance & Security',
             content: `
                 <h3>Overview</h3>
-                <p>Led platform-wide encryption of sensitive user data — profile attributes, email, and phone — with controlled runtime decryption for personalization.</p>
+                <p>The work that keeps a high-volume dispatch path fast, standing and safe.</p>
 
-                <h3>Key Features</h3>
+                <h3>What I Did</h3>
                 <ul>
-                    <li>Encryption of PII at rest across the platform</li>
-                    <li>Controlled runtime decryption, scoped to personalization</li>
-                    <li>Key management and rotation</li>
-                    <li>No measurable impact on campaign delivery performance</li>
+                    <li>Fixed a 4.7 GB heap out-of-memory on the dispatch path by replacing a non-thread-safe LRU cache with a lock-free one</li>
+                    <li>Made post-publish audit writes asynchronous to cut publish latency</li>
+                    <li>Fixed statistics corruption for A/B variants with dots in their names</li>
+                    <li>Completed platform-wide PII encryption in the send path — personalisation, test sends and audience estimates — without affecting dispatch throughput</li>
                 </ul>
 
                 <h3>Impact</h3>
-                <p>Strengthened the platform's data security and compliance posture across millions of user records, without slowing down campaign delivery.</p>
+                <p>The encryption work serves regulated clients including Kotak Mahindra Bank group, Axis Bank, Flipkart and EU-region accounts under GDPR.</p>
 
                 <h3>Technologies Used</h3>
-                <p>Java, Cryptography, Key Management</p>
+                <p>Java, concurrency, encryption</p>
+            `
+        },
+        'campaign-api': {
+            title: 'Campaign Creation API',
+            content: `
+                <h3>Overview</h3>
+                <p>Brought the programmatic API to parity with the dashboard for push, email and SMS campaigns — audience, schedule, conversion tracking and priorities.</p>
+
+                <h3>Design</h3>
+                <p>Built as a per-section handler pipeline, so later features plugged in as new handlers rather than rewrites: v2 audience caps, personalisation validation and payload compression all arrived that way.</p>
+
+                <h3>Impact</h3>
+                <p>The API now creates <strong>40%+ of all campaigns</strong> on the platform. It's also where I started — as an intern, I built its first extensions for the audience, schedule and setup sections.</p>
+
+                <h3>Technologies Used</h3>
+                <p>Java, REST API</p>
+            `
+        },
+        'send-time-personalisation': {
+            title: 'Send-Time Content Personalisation',
+            content: `
+                <h3>Overview</h3>
+                <p>Lets a brand personalise a message with content fetched from its own APIs at the moment of sending, instead of syncing its data into the platform first.</p>
+
+                <h3>What I Built</h3>
+                <p>Architected the fetch at send time, with Liquid templating of both the URL parameters and the JSON response — so the request can be shaped per user, and fields from the response used in the message.</p>
+
+                <h3>Impact</h3>
+                <p>Removed the data-sync step from brand onboarding. Now generally available.</p>
+
+                <h3>Technologies Used</h3>
+                <p>Java, Liquid, REST APIs</p>
+            `
+        },
+        'analytics-integrations': {
+            title: 'Analytics, Integrations & Security',
+            content: `
+                <h3>Overview</h3>
+                <p>A set of smaller pieces from my first years as a software engineer.</p>
+
+                <h3>What I Did</h3>
+                <ul>
+                    <li>Built push render-rate measurement, giving visibility into how notifications actually performed</li>
+                    <li>Added phone-number matching to the Facebook and Google Ads audience integrations, so audiences can be built from profile data</li>
+                    <li>Remediated penetration-test findings: label injection and CSV injection</li>
+                </ul>
+
+                <h3>Technologies Used</h3>
+                <p>Java, Facebook Ads API, Google Ads API</p>
             `
         }
     };

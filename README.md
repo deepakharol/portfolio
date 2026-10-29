@@ -120,7 +120,7 @@ Push to `main` — Cloudflare Pages auto-deploys. Build command is `exit 0`, out
 
 ## Author
 
-**Deepak Kharol** — Senior Software Engineer at CleverTap
+**Deepak Kharol** — Staff Software Engineer at CleverTap
 
 - [deepakkharol.com](https://deepakkharol.com)
 - [linkedin.com/in/deepakkharol](https://linkedin.com/in/deepakkharol)
